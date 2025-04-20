@@ -43,6 +43,17 @@ public abstract class GameScreen extends JFrame implements KeyListener {
         this.setVisible(true);
     }
 
+//    public void initInputs() {
+//        myMouseListener = new MyMouseListener(game);
+//        keyboardListener = new KeyboardListener(game);
+//
+//        addMouseListener(myMouseListener);
+//        addMouseMotionListener(myMouseListener);
+//        addKeyListener(keyboardListener);
+//
+//        requestFocus();
+//    }
+
     public void BeginGame() {
         this.G_Thread.StartThread();
     }
