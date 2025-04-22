@@ -3,10 +3,12 @@ package pkg2dgamesframework;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import javax.swing.JFrame;
 
-public abstract class GameScreen extends JFrame implements KeyListener {
+public abstract class GameScreen extends JFrame implements KeyListener, MouseListener {
     public static int KEY_PRESSED = 0;
     public static int KEY_RELEASED = 1;
     public int CUSTOM_WIDTH = 500;
@@ -55,6 +57,7 @@ public abstract class GameScreen extends JFrame implements KeyListener {
 //    }
 
     public void BeginGame() {
+
         this.G_Thread.StartThread();
     }
 
@@ -79,4 +82,6 @@ public abstract class GameScreen extends JFrame implements KeyListener {
     public abstract void GAME_PAINT(Graphics2D var1);
 
     public abstract void KEY_ACTION(KeyEvent var1, int var2);
+
+    public abstract void MOUSE_ACTION(MouseEvent var1, int var2);
 }

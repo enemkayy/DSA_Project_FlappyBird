@@ -1,0 +1,86 @@
+package flappy_birds;
+
+import pkg2dgamesframework.QueueList;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+
+public class ChimneyGroup {
+
+    // Queue to store and manage chimneys
+    private QueueList<Chimney> chimneys;
+
+    private BufferedImage chimneyImage1, chimneyImage2;
+
+    public static int SIZE = 6;
+
+    public ChimneyGroup() {
+
+        // Load chimney images for drawing top and bottom pipes
+        try {
+            chimneyImage1 = ImageIO.read(new File("Assets/chimney.png"));
+            chimneyImage2 = ImageIO.read(new File("Assets/chimney2.png"));
+        } catch (IOException e) {
+        }
+
+        chimneys = new QueueList<Chimney>();
+
+        Chimney cn;
+
+        // Create 3 pairs of chimneys (top and bottom)
+        for (int i = 0; i < SIZE/2; i++) {
+
+            // Bottom chimney
+            cn = new Chimney(830 + i * 300, 350, 74, 400);
+            chimneys.push(cn);
+
+            // Top chimney (positioned above the screen)
+            cn = new Chimney(830 + i * 300, -300, 74, 400);
+            chimneys.push(cn);
+        }
+    }
+
+    public Chimney getChimney(int i) {
+        return chimneys.get(i);
+    }
+
+    // Update chimney positions and recycle them when they go off screen
+    public void update() {
+
+        // Update position of all chimneys
+        for (int i = 0; i < SIZE; i++) {
+            chimneys.get(i).update();
+        }
+
+        // If the first chimney has moved off screen, reuse it
+        if (chimneys.get(0).getPosX() < -74) {
+            Chimney cn;
+
+            // Reuse bottom chimney
+            cn = chimneys.pop(); // Remove from front
+            cn.setPosX(chimneys.get(4).getPosX() + 300); // Reset position
+            chimneys.push(cn); // Add to end
+
+            // Reuse top chimney
+            cn = chimneys.pop();
+            cn.setPosX(chimneys.get(4).getPosX());
+            chimneys.push(cn);
+        }
+    }
+
+    public void paint(Graphics2D g2) {
+        for (int i = 0; i < SIZE; i++) {
+            if (i % 2 == 0) {
+                g2.drawImage(chimneyImage1, (int) chimneys.get(i).getPosX(), (int) chimneys.get(i).getPosY(), null);
+            } else {
+                g2.drawImage(chimneyImage2, (int) chimneys.get(i).getPosX(), (int) chimneys.get(i).getPosY(), null);
+
+            }
+        }
+    }
+
+
+}
