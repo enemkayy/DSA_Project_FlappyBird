@@ -3,6 +3,8 @@ package flappy_birds;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
+
+
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -16,6 +18,9 @@ import javax.imageio.ImageIO;
 
 public class FlappyBirds extends GameScreen {
 
+    private BufferedImage backgroundDay;
+
+
     private BufferedImage birds;
     private Animation bird_anim;
 
@@ -25,14 +30,27 @@ public class FlappyBirds extends GameScreen {
     private Ground ground;
     private ChimneyGroup chimneyGroup;
 
+
+    private int Point = 0;
+
     private final int BEGIN_SCREEN = 0;
     private final int GAMEPLAY_SCREEN = 1;
     private final int GAMEOVER_SCREEN = 2;
 
     private int currentScreen = BEGIN_SCREEN;
 
+
     public FlappyBirds() throws IOException {
+
         super(800, 600);
+
+        try {
+            backgroundDay = ImageIO.read(
+                    new File("Assets/background-day.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
 
         try {
             birds = ImageIO.read(new File("Assets/bird_sprite.png"));
@@ -68,6 +86,8 @@ public class FlappyBirds extends GameScreen {
         bird.setPos(350, 250);
         bird.setVt(0);
         bird.setLive(true);
+        Point = 0;
+        chimneyGroup.resetChimneys();
     }
 
     @Override
@@ -91,6 +111,14 @@ public class FlappyBirds extends GameScreen {
                 }
             }
 
+            for(int i = 0; i < ChimneyGroup.SIZE; i++) {
+                if (bird.getPosX() > chimneyGroup.getChimney(i).getPosX() && !chimneyGroup.getChimney(i).getIsBehindBird()
+                        && i % 2 == 0) {
+                    Point++;
+                    chimneyGroup.getChimney(i).setIsBehindBird(true);
+                }
+            }
+
             if (bird.getPosY() + bird.getH() > ground.getYGround()) {
                 currentScreen = GAMEOVER_SCREEN;
             }
@@ -101,8 +129,14 @@ public class FlappyBirds extends GameScreen {
 
     }
 
+
     @Override
     public void GAME_PAINT(Graphics2D g2) {
+
+        if (backgroundDay != null) {
+            g2.drawImage(backgroundDay, 0, 0, getWidth(), getHeight(), null);
+        }
+
 
         chimneyGroup.paint(g2);
 
@@ -120,6 +154,8 @@ public class FlappyBirds extends GameScreen {
             g2.setColor(Color.RED);
             g2.drawString("Press space to turn back begin screen", 200, 300);
         }
+        g2.setColor(Color.RED);
+        g2.drawString("Point: "+Point,20, 50);
     }
 
     @Override

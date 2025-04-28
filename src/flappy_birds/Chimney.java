@@ -7,6 +7,7 @@ import java.awt.*;
 public class Chimney extends Objects {
 
     private Rectangle rect;
+    private boolean isBehindBird = false;
 
     public Chimney (int x, int y, int w, int h) {
         super(x, y, w, h);
@@ -20,6 +21,13 @@ public class Chimney extends Objects {
 
     public Rectangle getRect() {
         return rect;
+    }
+
+    public void setIsBehindBird (boolean b) {
+        isBehindBird = b;
+    }
+    public boolean getIsBehindBird () {
+        return isBehindBird;
     }
 
 

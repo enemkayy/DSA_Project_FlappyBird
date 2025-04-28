@@ -43,6 +43,24 @@ public class ChimneyGroup {
         }
     }
 
+    public void resetChimneys() {
+        chimneys = new QueueList<Chimney>();
+
+        Chimney cn;
+
+        // Create 3 pairs of chimneys (top and bottom)
+        for (int i = 0; i < SIZE/2; i++) {
+
+            // Bottom chimney
+            cn = new Chimney(830 + i * 300, 350, 74, 400);
+            chimneys.push(cn);
+
+            // Top chimney (positioned above the screen)
+            cn = new Chimney(830 + i * 300, -300, 74, 400);
+            chimneys.push(cn);
+        }
+    }
+
     public Chimney getChimney(int i) {
         return chimneys.get(i);
     }
@@ -62,11 +80,13 @@ public class ChimneyGroup {
             // Reuse bottom chimney
             cn = chimneys.pop(); // Remove from front
             cn.setPosX(chimneys.get(4).getPosX() + 300); // Reset position
+            cn.setIsBehindBird(false);
             chimneys.push(cn); // Add to end
 
             // Reuse top chimney
             cn = chimneys.pop();
             cn.setPosX(chimneys.get(4).getPosX());
+            cn.setIsBehindBird(false);
             chimneys.push(cn);
         }
     }
