@@ -1,8 +1,10 @@
 package flappy_birds;
 
 import pkg2dgamesframework.Objects;
+import pkg2dgamesframework.SoundPlayer;
 
 import java.awt.*;
+import java.io.File;
 
 public class Bird extends Objects {
 
@@ -14,9 +16,16 @@ public class Bird extends Objects {
 
     private boolean isLive = true;
 
+    public SoundPlayer flapSound, bupSound, getMoneySound;
+
     public Bird(int x, int y, int w, int h) {
         super(x, y, w, h);
         rect = new Rectangle(x, y, w, h);
+
+        flapSound = new SoundPlayer(new File("Assets/flap.wav"));
+        bupSound = new SoundPlayer(new File("Assets/bup.wav"));
+        getMoneySound = new SoundPlayer(new File("Assets/getMoney.wav"));
+
     }
 
     public void setLive(boolean b) {
@@ -51,8 +60,8 @@ public class Bird extends Objects {
     }
 
     public void fly() {
-
         vt = -3;
+        flapSound.play();
     }
 
     public boolean getIsFlying() {

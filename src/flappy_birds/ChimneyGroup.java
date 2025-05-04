@@ -7,6 +7,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Random;
 
 public class ChimneyGroup {
 
@@ -16,6 +17,15 @@ public class ChimneyGroup {
     private BufferedImage chimneyImage1, chimneyImage2;
 
     public static int SIZE = 6;
+
+    private int topChimneyY = -350;
+    private int bottomChimneyY = 200;
+
+    public int getRandomY() {
+        Random random = new Random();
+        int a = random.nextInt(10);
+        return a * 34;
+    }
 
     public ChimneyGroup() {
 
@@ -31,14 +41,16 @@ public class ChimneyGroup {
         Chimney cn;
 
         // Create 3 pairs of chimneys (top and bottom)
-        for (int i = 0; i < SIZE/2; i++) {
+        for (int i = 0; i < SIZE / 2; i++) {
+
+            int deltaY = getRandomY();
 
             // Bottom chimney
-            cn = new Chimney(830 + i * 300, 350, 74, 400);
+            cn = new Chimney(830 + i * 300, bottomChimneyY + deltaY, 74, 400);
             chimneys.push(cn);
 
             // Top chimney (positioned above the screen)
-            cn = new Chimney(830 + i * 300, -300, 74, 400);
+            cn = new Chimney(830 + i * 300, topChimneyY + deltaY, 74, 400);
             chimneys.push(cn);
         }
     }
@@ -49,14 +61,16 @@ public class ChimneyGroup {
         Chimney cn;
 
         // Create 3 pairs of chimneys (top and bottom)
-        for (int i = 0; i < SIZE/2; i++) {
+        for (int i = 0; i < SIZE / 2; i++) {
+
+            int deltaY = getRandomY();
 
             // Bottom chimney
-            cn = new Chimney(830 + i * 300, 350, 74, 400);
+            cn = new Chimney(830 + i * 300, bottomChimneyY + deltaY, 74, 400);
             chimneys.push(cn);
 
             // Top chimney (positioned above the screen)
-            cn = new Chimney(830 + i * 300, -300, 74, 400);
+            cn = new Chimney(830 + i * 300, topChimneyY + deltaY, 74, 400);
             chimneys.push(cn);
         }
     }
@@ -75,17 +89,22 @@ public class ChimneyGroup {
 
         // If the first chimney has moved off screen, reuse it
         if (chimneys.get(0).getPosX() < -74) {
+
+            int deltaY = getRandomY();
+
             Chimney cn;
 
             // Reuse bottom chimney
             cn = chimneys.pop(); // Remove from front
             cn.setPosX(chimneys.get(4).getPosX() + 300); // Reset position
+            cn.setPosY(bottomChimneyY + deltaY);
             cn.setIsBehindBird(false);
             chimneys.push(cn); // Add to end
 
             // Reuse top chimney
             cn = chimneys.pop();
             cn.setPosX(chimneys.get(4).getPosX());
+            cn.setPosY(topChimneyY + deltaY);
             cn.setIsBehindBird(false);
             chimneys.push(cn);
         }

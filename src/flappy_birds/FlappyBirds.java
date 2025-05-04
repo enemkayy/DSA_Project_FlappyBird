@@ -20,11 +20,10 @@ public class FlappyBirds extends GameScreen {
 
     private BufferedImage backgroundDay;
 
-
     private BufferedImage birds;
     private Animation bird_anim;
 
-    public static float g = 0.1f;
+    public static float g = 0.14f;
 
     private Bird bird;
     private Ground ground;
@@ -107,19 +106,24 @@ public class FlappyBirds extends GameScreen {
 
             for (int i = 0; i < ChimneyGroup.SIZE; i++) {
                 if (bird.getRect().intersects(chimneyGroup.getChimney(i).getRect())) {
+                    if (bird.getLive())
+                        bird.bupSound.play();
                     bird.setLive(false);
+
                 }
             }
 
-            for(int i = 0; i < ChimneyGroup.SIZE; i++) {
+            for (int i = 0; i < ChimneyGroup.SIZE; i++) {
                 if (bird.getPosX() > chimneyGroup.getChimney(i).getPosX() && !chimneyGroup.getChimney(i).getIsBehindBird()
                         && i % 2 == 0) {
                     Point++;
+                    bird.getMoneySound.play();
                     chimneyGroup.getChimney(i).setIsBehindBird(true);
                 }
             }
 
             if (bird.getPosY() + bird.getH() > ground.getYGround()) {
+                //bird.bupSound.play();
                 currentScreen = GAMEOVER_SCREEN;
             }
 
@@ -155,7 +159,7 @@ public class FlappyBirds extends GameScreen {
             g2.drawString("Press space to turn back begin screen", 200, 300);
         }
         g2.setColor(Color.RED);
-        g2.drawString("Point: "+Point,20, 50);
+        g2.drawString("Point: " + Point, 20, 50);
     }
 
     @Override
