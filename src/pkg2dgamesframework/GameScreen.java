@@ -43,6 +43,8 @@ public abstract class GameScreen extends JFrame implements KeyListener, MouseLis
         this.addKeyListener(this);
         this.setSize(this.CUSTOM_WIDTH, this.CUSTOM_HEIGHT);
         this.setVisible(true);
+        this.setResizable(false);
+        this.setLocationRelativeTo(null);
     }
 
 //    public void initInputs() {
