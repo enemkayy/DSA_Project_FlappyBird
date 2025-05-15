@@ -1,7 +1,6 @@
 package flappy_birds;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.event.KeyEvent;
 
 
@@ -9,6 +8,7 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.awt.font.GlyphVector;
 
 import pkg2dgamesframework.AFrameOnImage;
 import pkg2dgamesframework.Animation;
@@ -19,11 +19,14 @@ import javax.imageio.ImageIO;
 public class FlappyBirds extends GameScreen {
 
     private BufferedImage backgroundDay;
+    private BufferedImage pauseButton;
+    private BufferedImage promptToPlay;
+    private BufferedImage getReady;
 
     private BufferedImage birds;
     private Animation bird_anim;
 
-    public static float g = 0.14f;
+    public static float g = 0.16f;
 
     private Bird bird;
     private Ground ground;
@@ -46,6 +49,12 @@ public class FlappyBirds extends GameScreen {
         try {
             backgroundDay = ImageIO.read(
                     new File("Assets/background-day.png"));
+            pauseButton = ImageIO.read(
+                    new File("Assets/button_pause.png"));
+            promptToPlay = ImageIO.read(
+                    new File("Assets/prompt.png"));
+            getReady = ImageIO.read(
+                    new File("Assets/label_get_ready.png"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -69,7 +78,7 @@ public class FlappyBirds extends GameScreen {
         f = new AFrameOnImage(60, 0, 60, 60);
         bird_anim.AddFrame(f);
 
-        bird = new Bird(350, 250, 50, 50);
+        bird = new Bird(300, 230, 50, 50);
         ground = new Ground();
 
         chimneyGroup = new ChimneyGroup();
@@ -82,11 +91,44 @@ public class FlappyBirds extends GameScreen {
     }
 
     private void resetGame() {
-        bird.setPos(350, 250);
+        bird.setPos(300, 230);
         bird.setVt(0);
         bird.setLive(true);
         Point = 0;
         chimneyGroup.resetChimneys();
+    }
+
+    private void checkScore() {
+        for (int i = 0; i < ChimneyGroup.SIZE; i++) {
+            if (bird.getPosX() > chimneyGroup.getChimney(i).getPosX() && !chimneyGroup.getChimney(i).getIsBehindBird()
+                    && i % 2 == 0) {
+                Point++;
+                bird.getMoneySound.play();
+                chimneyGroup.getChimney(i).setIsBehindBird(true);
+            }
+        }
+    }
+
+    private void checkCollisions() {
+        for (int i = 0; i < ChimneyGroup.SIZE; i++) {
+            if (bird.getRect().intersects(chimneyGroup.getChimney(i).getRect())) {
+                if (bird.getLive()) {
+                    bird.bupSound.play();
+                }
+                bird.setLive(false);
+
+            }
+        }
+
+        if (bird.getPosY() + bird.getH() > ground.getYGround()) {
+            if (bird.getLive()) {
+                bird.bupSound.play();
+                bird.setLive(false);
+            }
+            currentScreen = GAMEOVER_SCREEN;
+        }
+
+        checkScore();
     }
 
     @Override
@@ -100,32 +142,13 @@ public class FlappyBirds extends GameScreen {
                 bird_anim.Update_Me(deltaTime);
 
             bird.update(deltaTime);
-            ground.Update();
 
-            chimneyGroup.update();
-
-            for (int i = 0; i < ChimneyGroup.SIZE; i++) {
-                if (bird.getRect().intersects(chimneyGroup.getChimney(i).getRect())) {
-                    if (bird.getLive())
-                        bird.bupSound.play();
-                    bird.setLive(false);
-
-                }
+            if (bird.getLive()) {
+                ground.Update();
+                chimneyGroup.update();
             }
 
-            for (int i = 0; i < ChimneyGroup.SIZE; i++) {
-                if (bird.getPosX() > chimneyGroup.getChimney(i).getPosX() && !chimneyGroup.getChimney(i).getIsBehindBird()
-                        && i % 2 == 0) {
-                    Point++;
-                    bird.getMoneySound.play();
-                    chimneyGroup.getChimney(i).setIsBehindBird(true);
-                }
-            }
-
-            if (bird.getPosY() + bird.getH() > ground.getYGround()) {
-                //bird.bupSound.play();
-                currentScreen = GAMEOVER_SCREEN;
-            }
+            checkCollisions();
 
         } else {
 
@@ -136,35 +159,54 @@ public class FlappyBirds extends GameScreen {
 
     @Override
     public void GAME_PAINT(Graphics2D g2) {
+        String scoreText = "" + Point;
+        Font scoreFont = new Font("Verdana", Font.BOLD, 50);
+
+        // Create the outline shape from the text
+        GlyphVector gv = scoreFont.createGlyphVector(g2.getFontRenderContext(), scoreText);
+        Shape textShape = gv.getOutline(400, 60);
 
         if (backgroundDay != null) {
             g2.drawImage(backgroundDay, 0, 0, getWidth(), getHeight(), null);
         }
 
-
         chimneyGroup.paint(g2);
+
+        if (pauseButton != null) {
+            g2.drawImage(pauseButton, 20, 20, 40, 45, null);
+        }
 
         ground.Paint(g2);
 
-        if (bird.getIsFlying()) bird_anim.PaintAnims((int) bird.getPosX(), (int) bird.getPosY(), birds, g2, 0, -1);
-        else bird_anim.PaintAnims((int) bird.getPosX(), (int) bird.getPosY(), birds, g2, 0, 0);
+        if (bird.getIsFlying())
+            bird_anim.PaintAnims((int) bird.getPosX(), (int) bird.getPosY(), birds, g2, 0, -1);
+        else
+            bird_anim.PaintAnims((int) bird.getPosX(), (int) bird.getPosY(), birds, g2, 0, 0);
+
 
         if (currentScreen == BEGIN_SCREEN) {
-            g2.setColor(Color.RED);
-            g2.drawString("Press space to play game", 200, 300);
+            g2.drawImage(getReady, 220, 100, 400, 100, null);
+            g2.drawImage(promptToPlay, 290, 280, 270, 80, null);
         }
 
         if (currentScreen == GAMEOVER_SCREEN) {
             g2.setColor(Color.RED);
             g2.drawString("Press space to turn back begin screen", 200, 300);
         }
-        g2.setColor(Color.RED);
-        g2.drawString("Point: " + Point, 20, 50);
+        // Draw the black outline
+        g2.setFont(scoreFont);
+        g2.setColor(Color.BLACK);
+        g2.setStroke(new BasicStroke(5)); // Thickness of the outline
+        g2.draw(textShape);
+
+        // Fill with white text inside
+        g2.setColor(Color.WHITE);
+        g2.fill(textShape);
     }
 
     @Override
     public void KEY_ACTION(KeyEvent e, int Event) {
-        if (Event == KEY_PRESSED) {
+        if (Event == KEY_PRESSED && e.getKeyCode() == KeyEvent.VK_SPACE) {
 
             if (currentScreen == BEGIN_SCREEN) {
                 currentScreen = GAMEPLAY_SCREEN;
