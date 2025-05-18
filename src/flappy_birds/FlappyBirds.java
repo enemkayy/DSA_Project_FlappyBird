@@ -16,13 +16,15 @@ import pkg2dgamesframework.GameScreen;
 
 import javax.imageio.ImageIO;
 
+import static java.awt.event.MouseEvent.MOUSE_CLICKED;
+
 public class FlappyBirds extends GameScreen {
 
     private BufferedImage backgroundDay;
     private BufferedImage pauseButton;
+    private BufferedImage resumeButton;
     private BufferedImage promptToPlay;
     private BufferedImage getReady;
-
     private BufferedImage birds;
     private Animation bird_anim;
 
@@ -41,6 +43,7 @@ public class FlappyBirds extends GameScreen {
 
     private int currentScreen = BEGIN_SCREEN;
 
+    private boolean isPaused = false;
 
     public FlappyBirds() throws IOException {
 
@@ -51,6 +54,8 @@ public class FlappyBirds extends GameScreen {
                     new File("Assets/background-day.png"));
             pauseButton = ImageIO.read(
                     new File("Assets/button_pause.png"));
+            resumeButton = ImageIO.read(
+                    new File("Assets/button_resume.png"));
             promptToPlay = ImageIO.read(
                     new File("Assets/prompt.png"));
             getReady = ImageIO.read(
@@ -134,6 +139,10 @@ public class FlappyBirds extends GameScreen {
     @Override
     public void GAME_UPDATE(long deltaTime) {
 
+        if (isPaused) {
+            return; // Skip updates if paused
+        }
+
         if (currentScreen == BEGIN_SCREEN) {
             resetGame();
         } else if (currentScreen == GAMEPLAY_SCREEN) {
@@ -172,8 +181,9 @@ public class FlappyBirds extends GameScreen {
 
         chimneyGroup.paint(g2);
 
-        if (pauseButton != null) {
-            g2.drawImage(pauseButton, 20, 20, 40, 45, null);
+        BufferedImage buttonToDraw = isPaused ? resumeButton : pauseButton;
+        if (buttonToDraw != null) {
+            g2.drawImage(buttonToDraw, 20, 20, 40, 45, null);
         }
 
         ground.Paint(g2);
@@ -206,48 +216,43 @@ public class FlappyBirds extends GameScreen {
 
     @Override
     public void KEY_ACTION(KeyEvent e, int Event) {
-        if (Event == KEY_PRESSED && e.getKeyCode() == KeyEvent.VK_SPACE) {
+        if (Event == KEY_PRESSED) {
 
-            if (currentScreen == BEGIN_SCREEN) {
-                currentScreen = GAMEPLAY_SCREEN;
+            // SPACE Key
+            if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+                if (currentScreen == BEGIN_SCREEN) {
+                    currentScreen = GAMEPLAY_SCREEN;
+                } else if (currentScreen == GAMEPLAY_SCREEN) {
+                    if (bird.getLive() && !isPaused)
+                        bird.fly();
+                } else if (currentScreen == GAMEOVER_SCREEN) {
+                    currentScreen = BEGIN_SCREEN;
+                }
+            }
 
-            } else if (currentScreen == GAMEPLAY_SCREEN) {
-                if (bird.getLive())
-                    bird.fly();
-
-            } else if (currentScreen == GAMEOVER_SCREEN) {
-                currentScreen = BEGIN_SCREEN;
+            // ESC Key
+            if (e.getKeyCode() == KeyEvent.VK_ESCAPE && currentScreen == GAMEPLAY_SCREEN) {
+                isPaused = !isPaused;
+                System.out.println("Game Paused? " + isPaused);
             }
         }
     }
 
+
     @Override
     public void MOUSE_ACTION(MouseEvent e, int Event) {
+        if (Event == MouseEvent.MOUSE_CLICKED) {
+            int mouseX = e.getX();
+            int mouseY = e.getY();
+            System.out.println("Mouse clicked at: " + mouseX + "," + mouseY);
+            // Pause button position and size (adjust to match your image position)
+            int pausebtnX = 20, pausebtnY = 20, pausebtnWidth = 40, pausebtnHeight = 45;
 
-    }
-
-    @Override
-    public void mouseClicked(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-
+            // If click is inside the pause button area
+            if (mouseX >= pausebtnX && mouseX <= pausebtnX + pausebtnWidth && mouseY >= pausebtnY && mouseY <= pausebtnY + pausebtnHeight) {
+                isPaused = !isPaused;  // Toggle pause
+                System.out.println("Game Paused? " + isPaused);
+            }
+        }
     }
 }

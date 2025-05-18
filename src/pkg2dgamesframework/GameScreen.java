@@ -41,6 +41,7 @@ public abstract class GameScreen extends JFrame implements KeyListener, MouseLis
     private void InitScreen() {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.addKeyListener(this);
+        this.addMouseListener(this);
         this.setSize(this.CUSTOM_WIDTH, this.CUSTOM_HEIGHT);
         this.setVisible(true);
         this.setResizable(false);
@@ -86,4 +87,30 @@ public abstract class GameScreen extends JFrame implements KeyListener, MouseLis
     public abstract void KEY_ACTION(KeyEvent var1, int var2);
 
     public abstract void MOUSE_ACTION(MouseEvent var1, int var2);
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        MOUSE_ACTION(e, MouseEvent.MOUSE_CLICKED);
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+        MOUSE_ACTION(e, MouseEvent.MOUSE_PRESSED);
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+        MOUSE_ACTION(e, MouseEvent.MOUSE_RELEASED);
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+        MOUSE_ACTION(e, MouseEvent.MOUSE_ENTERED);
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+        MOUSE_ACTION(e, MouseEvent.MOUSE_EXITED);
+    }
+
 }
