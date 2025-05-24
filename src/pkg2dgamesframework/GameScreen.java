@@ -42,6 +42,7 @@ public abstract class GameScreen extends JFrame implements KeyListener, MouseLis
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.addKeyListener(this);
         this.addMouseListener(this);
+        this.setTitle("Flappy Bird remake");
         this.setSize(this.CUSTOM_WIDTH, this.CUSTOM_HEIGHT);
         this.setVisible(true);
         this.setResizable(false);
