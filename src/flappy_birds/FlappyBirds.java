@@ -26,7 +26,18 @@ public class FlappyBirds extends GameScreen {
     private BufferedImage promptToPlay;
     private BufferedImage getReady;
     private BufferedImage birds;
+    private BufferedImage gameOver;
+    private BufferedImage panelScore;
+    private BufferedImage restartButton;
+    private BufferedImage leaderboardButton;
+    private BufferedImage menuButton;
+    private BufferedImage bronzeMedal;
+    private BufferedImage silverMedal;
+    private BufferedImage goldMedal;
+    private BufferedImage platinumMedal;
+
     private Animation bird_anim;
+
 
     public static float g = 0.16f;
 
@@ -36,6 +47,7 @@ public class FlappyBirds extends GameScreen {
 
 
     private int Point = 0;
+    private int bestScore = 0;
 
     private final int BEGIN_SCREEN = 0;
     private final int GAMEPLAY_SCREEN = 1;
@@ -60,6 +72,24 @@ public class FlappyBirds extends GameScreen {
                     new File("Assets/prompt.png"));
             getReady = ImageIO.read(
                     new File("Assets/label_get_ready.png"));
+            gameOver = ImageIO.read(
+                    new File("Assets/gameover.png"));
+            panelScore = ImageIO.read(
+                    new File("Assets/panel_score.png"));
+            restartButton = ImageIO.read(
+                    new File("Assets/button_restart.png"));
+            leaderboardButton = ImageIO.read(
+                    new File("Assets/button_score_normal.png"));
+            menuButton = ImageIO.read(
+                    new File("Assets/button_menu.png"));
+            bronzeMedal = ImageIO.read(
+                    new File("Assets/medal_bronze.png"));
+            silverMedal = ImageIO.read(
+                    new File("Assets/medal_silver.png"));
+            goldMedal = ImageIO.read(
+                    new File("Assets/medal_gold.png"));
+            platinumMedal = ImageIO.read(
+                    new File("Assets/medal_platinum.png"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -133,7 +163,24 @@ public class FlappyBirds extends GameScreen {
             currentScreen = GAMEOVER_SCREEN;
         }
 
+        if (Point > bestScore) {
+            bestScore = Point;
+        }
+
         checkScore();
+    }
+
+    private BufferedImage getMedalForScore(int score) {
+        if (score >= 50) {
+            return platinumMedal;
+        } else if (score >= 30) {
+            return goldMedal;
+        } else if (score >= 15) {
+            return silverMedal;
+        } else if (score >= 5) {
+            return bronzeMedal;
+        }
+        return null; // No medal for scores below 10
     }
 
     @Override
@@ -195,23 +242,79 @@ public class FlappyBirds extends GameScreen {
 
 
         if (currentScreen == BEGIN_SCREEN) {
+            // Draw the black outline
+            g2.setFont(scoreFont);
+            g2.setColor(Color.BLACK);
+            g2.setStroke(new BasicStroke(5)); // Thickness of the outline
+            g2.draw(textShape);
+
+            // Fill with white text inside
+            g2.setColor(Color.WHITE);
+            g2.fill(textShape);
+
             g2.drawImage(getReady, 220, 100, 400, 100, null);
-            g2.drawImage(promptToPlay, 290, 280, 270, 80, null);
+            g2.drawImage(promptToPlay, 280, 280, 270, 80, null);
+        } else if (currentScreen == GAMEPLAY_SCREEN) {
+            // Draw the black outline
+            g2.setFont(scoreFont);
+            g2.setColor(Color.BLACK);
+            g2.setStroke(new BasicStroke(5)); // Thickness of the outline
+            g2.draw(textShape);
+
+            // Fill with white text inside
+            g2.setColor(Color.WHITE);
+            g2.fill(textShape);
         }
 
         if (currentScreen == GAMEOVER_SCREEN) {
             g2.setColor(Color.RED);
-            g2.drawString("Press space to turn back begin screen", 200, 300);
-        }
-        // Draw the black outline
-        g2.setFont(scoreFont);
-        g2.setColor(Color.BLACK);
-        g2.setStroke(new BasicStroke(5)); // Thickness of the outline
-        g2.draw(textShape);
+            g2.drawString("Press space to turn back begin screen", 240, 450);
 
-        // Fill with white text inside
-        g2.setColor(Color.WHITE);
-        g2.fill(textShape);
+            g2.drawImage(gameOver, 213, 50, 400, 80, null);
+            g2.drawImage(panelScore, 215, 155, 400, 200, null);
+
+            g2.drawImage(restartButton, 240, 370, 110, 55, null);
+            g2.drawImage(leaderboardButton, 360, 370, 110, 55, null);
+            g2.drawImage(menuButton, 480, 370, 110, 55, null);
+
+            // ✅ Draw score on top of the panel
+            String scoreText1 = "" + Point;
+            String scoreText2 = "" + bestScore;
+            Font scoreFont1 = new Font("Verdana", Font.BOLD, 18);
+
+            GlyphVector gv1 = scoreFont.createGlyphVector(g2.getFontRenderContext(), scoreText1);
+            GlyphVector gv2 = scoreFont.createGlyphVector(g2.getFontRenderContext(), scoreText2);
+
+            Shape textShape1 = gv1.getOutline(520, 250);
+            Shape textShape2 = gv2.getOutline(520, 325);
+
+
+            // Draw the black outline
+            g2.setFont(scoreFont1);
+            g2.setColor(Color.BLACK);
+            g2.setStroke(new BasicStroke(5)); // Thickness of the outline
+            g2.draw(textShape1);
+
+            // Fill with white text inside
+            g2.setColor(Color.WHITE);
+            g2.fill(textShape1);
+
+            // Draw the black outline
+            g2.setFont(scoreFont1);
+            g2.setColor(Color.BLACK);
+            g2.setStroke(new BasicStroke(5)); // Thickness of the outline
+            g2.draw(textShape2);
+
+            // Fill with white text inside
+            g2.setColor(Color.WHITE);
+            g2.fill(textShape2);
+
+            // Draw the medal based on the score
+            BufferedImage medalToDraw = getMedalForScore(Point);
+            if (medalToDraw != null) {
+                g2.drawImage(medalToDraw,260,230,77,77, null);
+            }
+        }
     }
 
     @Override
