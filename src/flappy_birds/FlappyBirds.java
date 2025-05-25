@@ -3,7 +3,6 @@ package flappy_birds;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 
-
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -22,6 +21,7 @@ public class FlappyBirds extends GameScreen {
 
     private BufferedImage titleImage;
     private BufferedImage bird_icon;
+    private BufferedImage leaderboardTitle;
 
     private BufferedImage backgroundDay;
 
@@ -63,6 +63,7 @@ public class FlappyBirds extends GameScreen {
     private final int BEGIN_SCREEN = 1;
     private final int GAMEPLAY_SCREEN = 2;
     private final int GAMEOVER_SCREEN = 3;
+    private final int LEADERBOARD_SCREEN = 4;
 
     private int currentScreen = MENU_SCREEN;
 
@@ -75,6 +76,8 @@ public class FlappyBirds extends GameScreen {
         try {
             titleImage = ImageIO.read(new File("Assets/label_flappy_bird.png"));
             bird_icon = ImageIO.read(new File("Assets/bird_orange_1.png"));
+            leaderboardTitle = ImageIO.read(
+                    new File("Assets/leaderboard_title.png"));
             backgroundDay = ImageIO.read(
                     new File("Assets/background-day.png"));
             exitButton = ImageIO.read(
@@ -285,6 +288,7 @@ public class FlappyBirds extends GameScreen {
             g2.drawImage(instructions, 325, 215, 200, 110, null);
             g2.drawImage(promptToPlay, 285, 325, 280, 90, null);
         } else if (currentScreen == GAMEPLAY_SCREEN) {
+
             // Draw the black outline
             g2.setFont(scoreFont);
             g2.setColor(Color.BLACK);
@@ -294,9 +298,8 @@ public class FlappyBirds extends GameScreen {
             // Fill with white text inside
             g2.setColor(Color.WHITE);
             g2.fill(textShape);
-        }
 
-        if (currentScreen == GAMEOVER_SCREEN) {
+        } else if (currentScreen == GAMEOVER_SCREEN) {
 
             g2.drawImage(gameOver, 213, 50, 400, 80, null);
             g2.drawImage(panelScore, 215, 155, 400, 200, null);
@@ -342,6 +345,54 @@ public class FlappyBirds extends GameScreen {
             if (medalToDraw != null) {
                 g2.drawImage(medalToDraw, 260, 230, 77, 77, null);
             }
+        } else if (currentScreen == LEADERBOARD_SCREEN) {
+
+            // Draw custom background panel
+            g2.setColor(new Color(222, 96, 54));
+            g2.fillRoundRect(180, 40, 440, 350, 20, 20);
+
+            g2.setColor(new Color(255, 199, 120)); // inner lighter tone
+            g2.fillRoundRect(190, 50, 420, 330, 15, 15);
+
+            // Border
+            g2.setColor(Color.BLACK);
+            g2.setStroke(new BasicStroke(4));
+            g2.drawRoundRect(190, 50, 420, 330, 15, 15);
+
+            //leaderboard title
+            g2.drawImage(leaderboardTitle, 250, 20, 300, 50, null);
+
+            // Header
+            g2.setFont(new Font("Courier New", Font.BOLD, 22));
+            g2.setColor(Color.BLACK);
+            g2.drawString("NAME", 220, 105);
+            g2.drawString("SCORE", 490, 105);
+
+            // Draw the back button area manually
+            GradientPaint gradient1 = new GradientPaint(330, 500, new Color(255, 150, 100), 470, 540, new Color(255, 100, 60));
+            g2.setPaint(gradient1);
+            g2.fillRoundRect(330, 400, 140, 40, 20, 20);
+
+            g2.setColor(Color.BLACK);
+            g2.setStroke(new BasicStroke(3));
+            g2.drawRoundRect(330, 400, 140, 40, 20, 20);
+
+            g2.setColor(Color.WHITE);
+            g2.setFont(new Font("Courier New", Font.BOLD, 40));
+            g2.drawString("BACK", 355, 432);
+
+            // Draw the add button
+            GradientPaint gradient2 = new GradientPaint(490, 500, new Color(60, 180, 75), 530, 540, new Color(40, 140, 55));
+            g2.setPaint(gradient2);
+            g2.fillRoundRect(589, 30, 40, 40, 15, 15);
+
+            g2.setColor(Color.WHITE);
+            g2.setFont(new Font("Courier New", Font.BOLD, 50));
+            g2.drawString("+", 595, 64);
+
+            g2.setColor(Color.BLACK);
+            g2.setStroke(new BasicStroke(2));
+            g2.drawRoundRect(589, 30, 40, 40, 15, 15);
         }
     }
 
@@ -405,6 +456,7 @@ public class FlappyBirds extends GameScreen {
                 int leaderboardBtnX = 360, leaderboardBtnY = 370, leaderboardBtnWidth = 110, leaderboardBtnHeight = 60;
                 int menuBtnX = 480, menuBtnY = 370, menuBtnWidth = 110, menuBtnHeight = 60;
 
+
                 // If click is inside the restart button area
                 if (mouseX >= restartBtnX && mouseX <= restartBtnX + restartBtnWidth && mouseY >= restartBtnY && mouseY <= restartBtnY + restartBtnHeight) {
                     resetGame();
@@ -414,12 +466,20 @@ public class FlappyBirds extends GameScreen {
                 // If click is inside the leaderboard button area
                 if (mouseX >= leaderboardBtnX && mouseX <= leaderboardBtnX + leaderboardBtnWidth && mouseY >= leaderboardBtnY && mouseY <= leaderboardBtnY + leaderboardBtnHeight) {
                     System.out.println("Leaderboard button clicked");
-                    // Handle leaderboard action here
+                    currentScreen = LEADERBOARD_SCREEN; // Switch to leaderboard screen
                 }
 
                 // If click is inside the menu button area
                 if (mouseX >= menuBtnX && mouseX <= menuBtnX + menuBtnWidth && mouseY >= menuBtnY && mouseY <= menuBtnY + menuBtnHeight) {
                     currentScreen = MENU_SCREEN;
+                }
+            } else if (currentScreen == LEADERBOARD_SCREEN) {
+
+                // Back button position and size
+                int backBtnX = 330, backBtnY = 400, backBtnWidth = 140, backBtnHeight = 40;
+
+                if (mouseX >= backBtnX && mouseX <= backBtnX + backBtnWidth && mouseY >= backBtnY && mouseY <= backBtnY + backBtnHeight) {
+                    currentScreen = GAMEOVER_SCREEN;
                 }
             }
         }
