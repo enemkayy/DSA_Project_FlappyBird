@@ -1,21 +1,24 @@
 package flappy_birds;
 
 import java.awt.*;
-import java.awt.event.KeyEvent;
 
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.awt.font.GlyphVector;
+import java.util.List;
 
 import pkg2dgamesframework.AFrameOnImage;
 import pkg2dgamesframework.Animation;
 import pkg2dgamesframework.GameScreen;
 
 import javax.imageio.ImageIO;
+import javax.swing.*;
 
-import static java.awt.event.MouseEvent.MOUSE_CLICKED;
+import flappy_birds.Player;
+
 
 public class FlappyBirds extends GameScreen {
 
@@ -68,6 +71,22 @@ public class FlappyBirds extends GameScreen {
     private int currentScreen = MENU_SCREEN;
 
     private boolean isPaused = false;
+
+    private LeaderboardManager leaderboardManager = new LeaderboardManager();
+
+    private int scrollOffset = 0;
+    private final int ENTRY_HEIGHT = 30;
+    private final int VISIBLE_ENTRIES = 9;
+
+    // Scrollbar properties
+    private final int SCROLLBAR_WIDTH = 15;
+    private final int LEADERBOARD_X = 200;
+    private final int LEADERBOARD_Y = 120;
+    private final int LEADERBOARD_WIDTH = 400;
+    private final int LEADERBOARD_HEIGHT = VISIBLE_ENTRIES * ENTRY_HEIGHT;
+    private boolean isDraggingScrollbar = false;
+    private int scrollbarDragOffset = 0;
+
 
     public FlappyBirds() throws IOException {
 
@@ -139,6 +158,8 @@ public class FlappyBirds extends GameScreen {
         ground = new Ground();
 
         chimneyGroup = new ChimneyGroup();
+
+        leaderboardManager = new LeaderboardManager();
 
         BeginGame();
     }
@@ -234,6 +255,40 @@ public class FlappyBirds extends GameScreen {
 
     }
 
+    private void drawScrollbar(Graphics2D g2) {
+        List<Player> players = leaderboardManager.getLeaderboard();
+        if (players.size() <= VISIBLE_ENTRIES) {
+            return; // No need for scrollbar if all entries fit
+        }
+
+        int scrollbarX = LEADERBOARD_X + LEADERBOARD_WIDTH - SCROLLBAR_WIDTH;
+        int scrollbarY = LEADERBOARD_Y;
+        int scrollbarTrackHeight = LEADERBOARD_HEIGHT;
+
+        // Draw scrollbar track
+        g2.setColor(new Color(180, 180, 180));
+        g2.fillRoundRect(scrollbarX, scrollbarY, SCROLLBAR_WIDTH, scrollbarTrackHeight, 8, 8);
+
+        g2.setColor(Color.BLACK);
+        g2.setStroke(new BasicStroke(1));
+        g2.drawRoundRect(scrollbarX, scrollbarY, SCROLLBAR_WIDTH, scrollbarTrackHeight, 8, 8);
+
+        // Calculate scrollbar thumb properties
+        int maxScroll = Math.max(0, (players.size() - VISIBLE_ENTRIES) * ENTRY_HEIGHT);
+        if (maxScroll > 0) {
+            float scrollRatio = (float) scrollOffset / maxScroll;
+            int thumbHeight = Math.max(20, (int) ((float) scrollbarTrackHeight * VISIBLE_ENTRIES / players.size()));
+            int thumbY = scrollbarY + (int) (scrollRatio * (scrollbarTrackHeight - thumbHeight));
+
+            // Draw scrollbar thumb
+            g2.setColor(new Color(100, 100, 100));
+            g2.fillRoundRect(scrollbarX + 2, thumbY, SCROLLBAR_WIDTH - 4, thumbHeight, 6, 6);
+
+            g2.setColor(Color.BLACK);
+            g2.setStroke(new BasicStroke(1));
+            g2.drawRoundRect(scrollbarX + 2, thumbY, SCROLLBAR_WIDTH - 4, thumbHeight, 6, 6);
+        }
+    }
 
     @Override
     public void GAME_PAINT(Graphics2D g2) {
@@ -368,6 +423,53 @@ public class FlappyBirds extends GameScreen {
             g2.drawString("NAME", 220, 105);
             g2.drawString("SCORE", 490, 105);
 
+            // Draw separator line under header
+            g2.setStroke(new BasicStroke(2));
+            g2.drawLine(210, 110, 580, 110);
+
+            // Create clipping area for the scrollable content
+            Shape oldClip = g2.getClip();
+            g2.setClip(LEADERBOARD_X, LEADERBOARD_Y, LEADERBOARD_WIDTH - SCROLLBAR_WIDTH - 5, LEADERBOARD_HEIGHT);
+
+            // Draw scrollable leaderboard entries
+            List<Player> players = leaderboardManager.getLeaderboard();
+            g2.setFont(new Font("Courier New", Font.PLAIN, 18));
+            g2.setColor(Color.BLACK);
+
+            for (int i = 0; i < players.size(); i++) {
+                int y = LEADERBOARD_Y + 15 + (i * ENTRY_HEIGHT) - scrollOffset;
+
+                // Only draw entries that are visible in the clipping area
+                if (y >= LEADERBOARD_Y - ENTRY_HEIGHT && y <= LEADERBOARD_Y + LEADERBOARD_HEIGHT + ENTRY_HEIGHT) {
+                    Player p = players.get(i);
+                    String rank = (i + 1) + ".";
+                    String displayName = p.getName();
+
+                    // Truncate name if too long
+                    if (displayName.length() > 12) {
+                        displayName = displayName.substring(0, 10) + "..";
+                    }
+
+                    String score = String.format("%05d", p.getScore());
+
+                    // Alternate row colors for better readability
+                    if (i % 2 == 0) {
+                        g2.setColor(new Color(255, 255, 255, 50));
+                        g2.fillRect(LEADERBOARD_X, y - 15, LEADERBOARD_WIDTH - SCROLLBAR_WIDTH - 5, ENTRY_HEIGHT);
+                    }
+
+                    g2.setColor(Color.BLACK);
+                    g2.drawString(rank + " " + displayName, LEADERBOARD_X + 20, y);
+                    g2.drawString(score, LEADERBOARD_X + 290, y);
+                }
+            }
+
+            // Restore original clipping
+            g2.setClip(oldClip);
+
+            // Draw scrollbar
+            drawScrollbar(g2);
+
             // Draw the back button area manually
             GradientPaint gradient1 = new GradientPaint(330, 500, new Color(255, 150, 100), 470, 540, new Color(255, 100, 60));
             g2.setPaint(gradient1);
@@ -378,8 +480,8 @@ public class FlappyBirds extends GameScreen {
             g2.drawRoundRect(330, 400, 140, 40, 20, 20);
 
             g2.setColor(Color.WHITE);
-            g2.setFont(new Font("Courier New", Font.BOLD, 40));
-            g2.drawString("BACK", 355, 432);
+            g2.setFont(new Font("Courier New", Font.BOLD, 16));
+            g2.drawString("BACK", 370, 425);
 
             // Draw the add button
             GradientPaint gradient2 = new GradientPaint(490, 500, new Color(60, 180, 75), 530, 540, new Color(40, 140, 55));
@@ -387,14 +489,15 @@ public class FlappyBirds extends GameScreen {
             g2.fillRoundRect(589, 30, 40, 40, 15, 15);
 
             g2.setColor(Color.WHITE);
-            g2.setFont(new Font("Courier New", Font.BOLD, 50));
-            g2.drawString("+", 595, 64);
+            g2.setFont(new Font("Courier New", Font.BOLD, 24));
+            g2.drawString("+", 602, 52);
 
             g2.setColor(Color.BLACK);
             g2.setStroke(new BasicStroke(2));
             g2.drawRoundRect(589, 30, 40, 40, 15, 15);
         }
     }
+
 
     @Override
     public void KEY_ACTION(KeyEvent e, int Event) {
@@ -418,12 +521,64 @@ public class FlappyBirds extends GameScreen {
         }
     }
 
+    private boolean isPointInScrollbar(int mouseX, int mouseY) {
+        int scrollbarX = LEADERBOARD_X + LEADERBOARD_WIDTH - SCROLLBAR_WIDTH;
+        int scrollbarY = LEADERBOARD_Y;
+        int scrollbarTrackHeight = LEADERBOARD_HEIGHT;
+
+        return mouseX >= scrollbarX && mouseX <= scrollbarX + SCROLLBAR_WIDTH &&
+                mouseY >= scrollbarY && mouseY <= scrollbarY + scrollbarTrackHeight;
+    }
+
+    private void handleScrollbarDrag(int mouseY) {
+        List<Player> players = leaderboardManager.getLeaderboard();
+        if (players.size() <= VISIBLE_ENTRIES) {
+            return;
+        }
+
+        int scrollbarTrackHeight = LEADERBOARD_HEIGHT;
+        int maxScroll = Math.max(0, (players.size() - VISIBLE_ENTRIES) * ENTRY_HEIGHT);
+
+        int relativeY = mouseY - LEADERBOARD_Y - scrollbarDragOffset;
+        float scrollRatio = (float) relativeY / scrollbarTrackHeight;
+        scrollRatio = Math.max(0, Math.min(1, scrollRatio));
+
+        scrollOffset = (int) (scrollRatio * maxScroll);
+    }
 
     @Override
     public void MOUSE_ACTION(MouseEvent e, int Event) {
+        int mouseX = e.getX();
+        int mouseY = e.getY();
+
+        if (Event == MouseEvent.MOUSE_PRESSED && currentScreen == LEADERBOARD_SCREEN) {
+            if (isPointInScrollbar(mouseX, mouseY)) {
+                isDraggingScrollbar = true;
+
+                // Calculate thumb position and drag offset
+                List<Player> players = leaderboardManager.getLeaderboard();
+                if (players.size() > VISIBLE_ENTRIES) {
+                    int maxScroll = Math.max(0, (players.size() - VISIBLE_ENTRIES) * ENTRY_HEIGHT);
+                    float scrollRatio = (float) scrollOffset / maxScroll;
+                    int thumbHeight = Math.max(20, (int) ((float) LEADERBOARD_HEIGHT * VISIBLE_ENTRIES / players.size()));
+                    int thumbY = LEADERBOARD_Y + (int) (scrollRatio * (LEADERBOARD_HEIGHT - thumbHeight));
+
+                    scrollbarDragOffset = mouseY - thumbY;
+                }
+                return;
+            }
+        }
+
+        if (Event == MouseEvent.MOUSE_RELEASED) {
+            isDraggingScrollbar = false;
+        }
+
+        if (Event == MouseEvent.MOUSE_DRAGGED && isDraggingScrollbar) {
+            handleScrollbarDrag(mouseY);
+            return;
+        }
+
         if (Event == MouseEvent.MOUSE_CLICKED) {
-            int mouseX = e.getX();
-            int mouseY = e.getY();
             System.out.println("Mouse clicked at: " + mouseX + "," + mouseY);
 
             if (currentScreen == MENU_SCREEN) {
@@ -467,6 +622,7 @@ public class FlappyBirds extends GameScreen {
                 if (mouseX >= leaderboardBtnX && mouseX <= leaderboardBtnX + leaderboardBtnWidth && mouseY >= leaderboardBtnY && mouseY <= leaderboardBtnY + leaderboardBtnHeight) {
                     System.out.println("Leaderboard button clicked");
                     currentScreen = LEADERBOARD_SCREEN; // Switch to leaderboard screen
+                    scrollOffset = 0; // Reset scroll position when entering leaderboard
                 }
 
                 // If click is inside the menu button area
@@ -481,7 +637,26 @@ public class FlappyBirds extends GameScreen {
                 if (mouseX >= backBtnX && mouseX <= backBtnX + backBtnWidth && mouseY >= backBtnY && mouseY <= backBtnY + backBtnHeight) {
                     currentScreen = GAMEOVER_SCREEN;
                 }
+
+                int addBtnX = 589, addBtnY = 30, addBtnWidth = 40, addBtnHeight = 40;
+                if (mouseX >= addBtnX && mouseX <= addBtnX + addBtnWidth && mouseY >= addBtnY && mouseY <= addBtnY + addBtnHeight) {
+                    String name = JOptionPane.showInputDialog(this, "Enter your name:");
+                    if (name != null && !name.trim().isEmpty()) {
+                        Player newPlayer = new Player(name.trim(), Point);
+                        leaderboardManager.addPlayer(name.trim().toUpperCase(), Point);
+                    }
+                }
             }
+        }
+    }
+
+    @Override
+    public void MOUSE_WHEEL_ACTION(int notches) {
+        if (currentScreen == LEADERBOARD_SCREEN) {
+            List<Player> players = leaderboardManager.getLeaderboard();
+            int maxOffset = Math.max(0, (players.size() - VISIBLE_ENTRIES) * ENTRY_HEIGHT);
+            scrollOffset += notches * ENTRY_HEIGHT;
+            scrollOffset = Math.max(0, Math.min(scrollOffset, maxOffset));
         }
     }
 }

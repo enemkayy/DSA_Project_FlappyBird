@@ -5,10 +5,11 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
 import javax.swing.JFrame;
 
-public abstract class GameScreen extends JFrame implements KeyListener, MouseListener {
+public abstract class GameScreen extends JFrame implements KeyListener, MouseListener, MouseWheelListener {
     public static int KEY_PRESSED = 0;
     public static int KEY_RELEASED = 1;
     public int CUSTOM_WIDTH = 500;
@@ -42,6 +43,7 @@ public abstract class GameScreen extends JFrame implements KeyListener, MouseLis
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.addKeyListener(this);
         this.addMouseListener(this);
+        this.addMouseWheelListener(this);
         this.setTitle("Flappy Bird remake");
         this.setSize(this.CUSTOM_WIDTH, this.CUSTOM_HEIGHT);
         this.setVisible(true);
@@ -88,6 +90,13 @@ public abstract class GameScreen extends JFrame implements KeyListener, MouseLis
     public abstract void KEY_ACTION(KeyEvent var1, int var2);
 
     public abstract void MOUSE_ACTION(MouseEvent var1, int var2);
+
+    public abstract void MOUSE_WHEEL_ACTION(int notches);
+
+    @Override
+    public void mouseWheelMoved(java.awt.event.MouseWheelEvent e) {
+        MOUSE_WHEEL_ACTION(e.getWheelRotation());
+    }
 
     @Override
     public void mouseClicked(MouseEvent e) {
