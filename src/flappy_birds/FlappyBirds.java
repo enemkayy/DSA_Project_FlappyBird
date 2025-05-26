@@ -48,6 +48,7 @@ public class FlappyBirds extends GameScreen {
     private BufferedImage silverMedal;
     private BufferedImage goldMedal;
     private BufferedImage platinumMedal;
+    private BufferedImage label_new;
 
     private Animation bird_anim;
 
@@ -71,6 +72,7 @@ public class FlappyBirds extends GameScreen {
     private int currentScreen = MENU_SCREEN;
 
     private boolean isPaused = false;
+    private boolean isNewBestScore = false;
 
     private LeaderboardManager leaderboardManager = new LeaderboardManager();
 
@@ -80,13 +82,27 @@ public class FlappyBirds extends GameScreen {
 
     // Scrollbar properties
     private final int SCROLLBAR_WIDTH = 15;
-    private final int LEADERBOARD_X = 200;
-    private final int LEADERBOARD_Y = 120;
+    private final int LEADERBOARD_X = 205;
+    private final int LEADERBOARD_Y = 105;
     private final int LEADERBOARD_WIDTH = 400;
     private final int LEADERBOARD_HEIGHT = VISIBLE_ENTRIES * ENTRY_HEIGHT;
     private boolean isDraggingScrollbar = false;
     private int scrollbarDragOffset = 0;
 
+    // Button hover states
+    private int hoveredButton = -1; // -1 means no button is hovered
+    private final int BUTTON_PLAY = 1;
+    private final int BUTTON_EXIT = 2;
+    private final int BUTTON_PAUSE = 3;
+    private final int BUTTON_RESTART = 4;
+    private final int BUTTON_LEADERBOARD = 5;
+    private final int BUTTON_MENU = 6;
+    private final int BUTTON_BACK = 7;
+    private final int BUTTON_ADD = 8;
+
+    // Button hover colors
+    private final Color HOVER_OVERLAY = new Color(246, 1, 1, 80); // Semi-transparent white
+    private final Color BUTTON_HOVER_GLOW = new Color(128, 128, 128); // Golden glow
 
     public FlappyBirds() throws IOException {
 
@@ -131,6 +147,8 @@ public class FlappyBirds extends GameScreen {
                     new File("Assets/medal_gold.png"));
             platinumMedal = ImageIO.read(
                     new File("Assets/medal_platinum.png"));
+            label_new = ImageIO.read(
+                    new File("Assets/label_new.png"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -203,11 +221,14 @@ public class FlappyBirds extends GameScreen {
                 bird.bupSound.play();
                 bird.setLive(false);
             }
-            currentScreen = GAMEOVER_SCREEN;
-        }
 
-        if (Point > bestScore) {
-            bestScore = Point;
+            if (Point > bestScore) {
+                bestScore = Point;
+                isNewBestScore = true;
+            } else {
+                isNewBestScore = false;
+            }
+            currentScreen = GAMEOVER_SCREEN;
         }
 
         checkScore();
@@ -290,36 +311,104 @@ public class FlappyBirds extends GameScreen {
         }
     }
 
+    // Method to check which button is being hovered
+    private int getHoveredButton(int mouseX, int mouseY) {
+        if (currentScreen == MENU_SCREEN) {
+            // Play button
+            if (mouseX >= 310 && mouseX <= 490 && mouseY >= 335 && mouseY <= 435) {
+                return BUTTON_PLAY;
+            }
+            // Exit button
+            if (mouseX >= 341 && mouseX <= 461 && mouseY >= 450 && mouseY <= 500) {
+                return BUTTON_EXIT;
+            }
+        } else if (currentScreen == GAMEPLAY_SCREEN) {
+            // Pause/Resume button
+            if (mouseX >= 20 && mouseX <= 60 && mouseY >= 20 && mouseY <= 65) {
+                return BUTTON_PAUSE;
+            }
+        } else if (currentScreen == GAMEOVER_SCREEN) {
+            // Restart button
+            if (mouseX >= 240 && mouseX <= 350 && mouseY >= 370 && mouseY <= 430) {
+                return BUTTON_RESTART;
+            }
+            // Leaderboard button
+            if (mouseX >= 360 && mouseX <= 470 && mouseY >= 370 && mouseY <= 430) {
+                return BUTTON_LEADERBOARD;
+            }
+            // Menu button
+            if (mouseX >= 480 && mouseX <= 590 && mouseY >= 370 && mouseY <= 430) {
+                return BUTTON_MENU;
+            }
+        } else if (currentScreen == LEADERBOARD_SCREEN) {
+            // Back button
+            if (mouseX >= 330 && mouseX <= 470 && mouseY >= 400 && mouseY <= 440) {
+                return BUTTON_BACK;
+            }
+            // Add button
+            if (mouseX >= 589 && mouseX <= 629 && mouseY >= 30 && mouseY <= 70) {
+                return BUTTON_ADD;
+            }
+        }
+        return -1; // No button hovered
+    }
+
+    // Method to draw hover effect
+    private void drawButtonHover(Graphics2D g2, int buttonType, int x, int y, int width, int height) {
+        if (hoveredButton == buttonType) {
+            // Draw outer glow effect
+            g2.setColor(new Color(255, 215, 0, 60)); // Golden glow - more transparent
+            g2.setStroke(new BasicStroke(6));
+            g2.drawRoundRect(x - 3, y - 3, width + 6, height + 6, 12, 12);
+
+            // Draw inner glow
+            g2.setColor(new Color(255, 255, 255, 40)); // White inner glow
+            g2.setStroke(new BasicStroke(2));
+            g2.drawRoundRect(x - 1, y - 1, width + 2, height + 2, 8, 8);
+
+            // Draw subtle overlay
+            g2.setColor(HOVER_OVERLAY);
+            g2.fillRoundRect(x, y, width, height, 8, 8);
+
+            // Set hand cursor
+            setCursor(new Cursor(Cursor.HAND_CURSOR));
+        }
+    }
+
     @Override
     public void GAME_PAINT(Graphics2D g2) {
-
         if (backgroundDay != null) {
             g2.drawImage(backgroundDay, 0, 0, getWidth(), getHeight(), null);
         }
 
         chimneyGroup.paint(g2);
-
         ground.Paint(g2);
 
         if (currentScreen == MENU_SCREEN) {
             g2.drawImage(titleImage, 160, 100, 400, 100, null);
             g2.drawImage(bird_icon, 590, 120, 60, 50, null);
+
+            // Draw play button with hover effect
             g2.drawImage(playButton, 310, 335, 180, 100, null);
+            drawButtonHover(g2, BUTTON_PLAY, 310, 335, 180, 100);
+
+            // Draw exit button with hover effect
             g2.drawImage(exitButton, 341, 450, 120, 50, null);
+            drawButtonHover(g2, BUTTON_EXIT, 341, 450, 120, 50);
+
             return;
         }
 
         String scoreText = "" + Point;
         Font scoreFont = new Font("Verdana", Font.BOLD, 50);
-
-        // Create the outline shape from the text
         GlyphVector gv = scoreFont.createGlyphVector(g2.getFontRenderContext(), scoreText);
         Shape textShape = gv.getOutline(400, 60);
 
-
+        // Draw pause/resume button with hover effect
         BufferedImage buttonToDraw = isPaused ? resumeButton : pauseButton;
         if (buttonToDraw != null) {
             g2.drawImage(buttonToDraw, 20, 20, 40, 45, null);
+            drawButtonHover(g2, BUTTON_PAUSE, 20, 20, 40, 45);
         }
 
         if (bird.getIsFlying())
@@ -327,43 +416,43 @@ public class FlappyBirds extends GameScreen {
         else
             bird_anim.PaintAnims((int) bird.getPosX(), (int) bird.getPosY(), birds, g2, 0, 0);
 
-
         if (currentScreen == BEGIN_SCREEN) {
-            // Draw the black outline
+            // Draw score with outline
             g2.setFont(scoreFont);
             g2.setColor(Color.BLACK);
-            g2.setStroke(new BasicStroke(5)); // Thickness of the outline
+            g2.setStroke(new BasicStroke(5));
             g2.draw(textShape);
-
-            // Fill with white text inside
             g2.setColor(Color.WHITE);
             g2.fill(textShape);
 
             g2.drawImage(getReady, 220, 100, 400, 100, null);
             g2.drawImage(instructions, 325, 215, 200, 110, null);
             g2.drawImage(promptToPlay, 285, 325, 280, 90, null);
-        } else if (currentScreen == GAMEPLAY_SCREEN) {
 
-            // Draw the black outline
+        } else if (currentScreen == GAMEPLAY_SCREEN) {
+            // Draw score with outline
             g2.setFont(scoreFont);
             g2.setColor(Color.BLACK);
-            g2.setStroke(new BasicStroke(5)); // Thickness of the outline
+            g2.setStroke(new BasicStroke(5));
             g2.draw(textShape);
-
-            // Fill with white text inside
             g2.setColor(Color.WHITE);
             g2.fill(textShape);
 
         } else if (currentScreen == GAMEOVER_SCREEN) {
-
             g2.drawImage(gameOver, 213, 50, 400, 80, null);
             g2.drawImage(panelScore, 215, 155, 400, 200, null);
 
+            // Draw buttons with hover effects
             g2.drawImage(restartButton, 240, 370, 110, 60, null);
-            g2.drawImage(leaderboardButton, 360, 370, 110, 60, null);
-            g2.drawImage(menuButton, 480, 370, 110, 60, null);
+            drawButtonHover(g2, BUTTON_RESTART, 240, 370, 110, 60);
 
-            // Draw score on top of the panel
+            g2.drawImage(leaderboardButton, 360, 370, 110, 60, null);
+            drawButtonHover(g2, BUTTON_LEADERBOARD, 360, 370, 110, 60);
+
+            g2.drawImage(menuButton, 480, 370, 110, 60, null);
+            drawButtonHover(g2, BUTTON_MENU, 480, 370, 110, 60);
+
+            // Draw scores
             String scoreText1 = "" + Point;
             String scoreText2 = "" + bestScore;
             Font scoreFont1 = new Font("Verdana", Font.BOLD, 18);
@@ -374,39 +463,33 @@ public class FlappyBirds extends GameScreen {
             Shape textShape1 = gv1.getOutline(520, 250);
             Shape textShape2 = gv2.getOutline(520, 325);
 
-
-            // Draw the black outline
+            // Draw score outlines and fills
             g2.setFont(scoreFont1);
             g2.setColor(Color.BLACK);
-            g2.setStroke(new BasicStroke(5)); // Thickness of the outline
+            g2.setStroke(new BasicStroke(5));
             g2.draw(textShape1);
-
-            // Fill with white text inside
+            g2.draw(textShape2);
             g2.setColor(Color.WHITE);
             g2.fill(textShape1);
-
-            // Draw the black outline
-            g2.setFont(scoreFont1);
-            g2.setColor(Color.BLACK);
-            g2.setStroke(new BasicStroke(5)); // Thickness of the outline
-            g2.draw(textShape2);
-
-            // Fill with white text inside
-            g2.setColor(Color.WHITE);
             g2.fill(textShape2);
 
-            // Draw the medal based on the score
+            // Draw "NEW" label
+            if (isNewBestScore && label_new != null) {
+                g2.drawImage(label_new, 475, 258, 35, 23, null);
+            }
+
+            // Draw medal
             BufferedImage medalToDraw = getMedalForScore(Point);
             if (medalToDraw != null) {
                 g2.drawImage(medalToDraw, 260, 230, 77, 77, null);
             }
-        } else if (currentScreen == LEADERBOARD_SCREEN) {
 
+        } else if (currentScreen == LEADERBOARD_SCREEN) {
             // Draw custom background panel
             g2.setColor(new Color(222, 96, 54));
             g2.fillRoundRect(180, 40, 440, 350, 20, 20);
 
-            g2.setColor(new Color(255, 199, 120)); // inner lighter tone
+            g2.setColor(new Color(255, 199, 120));
             g2.fillRoundRect(190, 50, 420, 330, 15, 15);
 
             // Border
@@ -414,18 +497,18 @@ public class FlappyBirds extends GameScreen {
             g2.setStroke(new BasicStroke(4));
             g2.drawRoundRect(190, 50, 420, 330, 15, 15);
 
-            //leaderboard title
-            g2.drawImage(leaderboardTitle, 250, 20, 300, 50, null);
+            // Leaderboard title
+            g2.drawImage(leaderboardTitle, 250, 20, 300, 55, null);
 
             // Header
             g2.setFont(new Font("Courier New", Font.BOLD, 22));
             g2.setColor(Color.BLACK);
-            g2.drawString("NAME", 220, 105);
-            g2.drawString("SCORE", 490, 105);
+            g2.drawString("NAME", 255, 99);
+            g2.drawString("SCORE", 490, 99);
 
             // Draw separator line under header
             g2.setStroke(new BasicStroke(2));
-            g2.drawLine(210, 110, 580, 110);
+            g2.drawLine(210, 103, 580, 103);
 
             // Create clipping area for the scrollable content
             Shape oldClip = g2.getClip();
@@ -439,20 +522,18 @@ public class FlappyBirds extends GameScreen {
             for (int i = 0; i < players.size(); i++) {
                 int y = LEADERBOARD_Y + 15 + (i * ENTRY_HEIGHT) - scrollOffset;
 
-                // Only draw entries that are visible in the clipping area
                 if (y >= LEADERBOARD_Y - ENTRY_HEIGHT && y <= LEADERBOARD_Y + LEADERBOARD_HEIGHT + ENTRY_HEIGHT) {
                     Player p = players.get(i);
                     String rank = (i + 1) + ".";
                     String displayName = p.getName();
 
-                    // Truncate name if too long
                     if (displayName.length() > 12) {
                         displayName = displayName.substring(0, 10) + "..";
                     }
 
                     String score = String.format("%05d", p.getScore());
 
-                    // Alternate row colors for better readability
+                    // Alternate row colors
                     if (i % 2 == 0) {
                         g2.setColor(new Color(255, 255, 255, 50));
                         g2.fillRect(LEADERBOARD_X, y - 15, LEADERBOARD_WIDTH - SCROLLBAR_WIDTH - 5, ENTRY_HEIGHT);
@@ -470,8 +551,8 @@ public class FlappyBirds extends GameScreen {
             // Draw scrollbar
             drawScrollbar(g2);
 
-            // Draw the back button area manually
-            GradientPaint gradient1 = new GradientPaint(330, 500, new Color(255, 150, 100), 470, 540, new Color(255, 100, 60));
+            // Draw back button with hover effect
+            GradientPaint gradient1 = new GradientPaint(330, 400, new Color(255, 150, 100), 470, 440, new Color(255, 100, 60));
             g2.setPaint(gradient1);
             g2.fillRoundRect(330, 400, 140, 40, 20, 20);
 
@@ -480,21 +561,32 @@ public class FlappyBirds extends GameScreen {
             g2.drawRoundRect(330, 400, 140, 40, 20, 20);
 
             g2.setColor(Color.WHITE);
-            g2.setFont(new Font("Courier New", Font.BOLD, 16));
-            g2.drawString("BACK", 370, 425);
+            g2.setFont(new Font("Courier New", Font.BOLD, 35));
+            g2.drawString("BACK", 358, 430);
 
-            // Draw the add button
-            GradientPaint gradient2 = new GradientPaint(490, 500, new Color(60, 180, 75), 530, 540, new Color(40, 140, 55));
+            // Draw hover effect for back button
+            drawButtonHover(g2, BUTTON_BACK, 330, 400, 140, 40);
+
+            // Draw add button with hover effect
+            GradientPaint gradient2 = new GradientPaint(589, 30, new Color(60, 180, 75), 629, 70, new Color(40, 140, 55));
             g2.setPaint(gradient2);
             g2.fillRoundRect(589, 30, 40, 40, 15, 15);
 
             g2.setColor(Color.WHITE);
-            g2.setFont(new Font("Courier New", Font.BOLD, 24));
-            g2.drawString("+", 602, 52);
+            g2.setFont(new Font("Courier New", Font.BOLD, 50));
+            g2.drawString("+", 595, 63);
 
             g2.setColor(Color.BLACK);
             g2.setStroke(new BasicStroke(2));
             g2.drawRoundRect(589, 30, 40, 40, 15, 15);
+
+            // Draw hover effect for add button
+            drawButtonHover(g2, BUTTON_ADD, 589, 30, 40, 40);
+        }
+
+        // Reset cursor if no button is hovered
+        if (hoveredButton == -1) {
+            setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
         }
     }
 
@@ -530,6 +622,26 @@ public class FlappyBirds extends GameScreen {
                 mouseY >= scrollbarY && mouseY <= scrollbarY + scrollbarTrackHeight;
     }
 
+    private boolean isPointInScrollbarThumb(int mouseX, int mouseY) {
+        List<Player> players = leaderboardManager.getLeaderboard();
+        if (players.size() <= VISIBLE_ENTRIES) {
+            return false;
+        }
+
+        int scrollbarX = LEADERBOARD_X + LEADERBOARD_WIDTH - SCROLLBAR_WIDTH;
+        int scrollbarY = LEADERBOARD_Y;
+        int scrollbarTrackHeight = LEADERBOARD_HEIGHT;
+
+        int maxScroll = Math.max(0, (players.size() - VISIBLE_ENTRIES) * ENTRY_HEIGHT);
+        float scrollRatio = (float) scrollOffset / maxScroll;
+        int thumbHeight = Math.max(20, (int) ((float) scrollbarTrackHeight * VISIBLE_ENTRIES / players.size()));
+        int thumbY = scrollbarY + (int) (scrollRatio * (scrollbarTrackHeight - thumbHeight));
+
+        return mouseX >= scrollbarX + 2 && mouseX <= scrollbarX + SCROLLBAR_WIDTH - 2 &&
+                mouseY >= thumbY && mouseY <= thumbY + thumbHeight;
+    }
+
+
     private void handleScrollbarDrag(int mouseY) {
         List<Player> players = leaderboardManager.getLeaderboard();
         if (players.size() <= VISIBLE_ENTRIES) {
@@ -539,114 +651,146 @@ public class FlappyBirds extends GameScreen {
         int scrollbarTrackHeight = LEADERBOARD_HEIGHT;
         int maxScroll = Math.max(0, (players.size() - VISIBLE_ENTRIES) * ENTRY_HEIGHT);
 
-        int relativeY = mouseY - LEADERBOARD_Y - scrollbarDragOffset;
-        float scrollRatio = (float) relativeY / scrollbarTrackHeight;
-        scrollRatio = Math.max(0, Math.min(1, scrollRatio));
+        // Calculate thumb height
+        int thumbHeight = Math.max(20, (int) ((float) scrollbarTrackHeight * VISIBLE_ENTRIES / players.size()));
+        int usableTrackHeight = scrollbarTrackHeight - thumbHeight;
 
+        // Calculate relative position considering the drag offset
+        int relativeY = mouseY - LEADERBOARD_Y - scrollbarDragOffset;
+
+        // Ensure we don't go beyond the usable track area
+        relativeY = Math.max(0, Math.min(relativeY, usableTrackHeight));
+
+        // Calculate scroll ratio
+        float scrollRatio = usableTrackHeight > 0 ? (float) relativeY / usableTrackHeight : 0;
+
+        // Apply the scroll
         scrollOffset = (int) (scrollRatio * maxScroll);
+        scrollOffset = Math.max(0, Math.min(scrollOffset, maxScroll));
     }
+
+    private void updateHoverState(int mouseX, int mouseY) {
+        int newHoveredButton = getHoveredButton(mouseX, mouseY);
+        if (newHoveredButton != hoveredButton) {
+            hoveredButton = newHoveredButton;
+            repaint(); // Trigger repaint to show hover effects
+        }
+    }
+
 
     @Override
     public void MOUSE_ACTION(MouseEvent e, int Event) {
         int mouseX = e.getX();
         int mouseY = e.getY();
 
+        // Update hovered button on both mouse move and drag
+        if (Event == MouseEvent.MOUSE_MOVED || Event == MouseEvent.MOUSE_DRAGGED) {
+            // Only update hover if not dragging scrollbar
+            if (!isDraggingScrollbar) {
+                updateHoverState(mouseX, mouseY);
+            }
+
+            // Handle scrollbar dragging
+            if (Event == MouseEvent.MOUSE_DRAGGED && isDraggingScrollbar) {
+                handleScrollbarDrag(mouseY);
+            }
+            return;
+        }
+
+        // Handle mouse press events for scrollbar
         if (Event == MouseEvent.MOUSE_PRESSED && currentScreen == LEADERBOARD_SCREEN) {
             if (isPointInScrollbar(mouseX, mouseY)) {
                 isDraggingScrollbar = true;
 
-                // Calculate thumb position and drag offset
-                List<Player> players = leaderboardManager.getLeaderboard();
-                if (players.size() > VISIBLE_ENTRIES) {
-                    int maxScroll = Math.max(0, (players.size() - VISIBLE_ENTRIES) * ENTRY_HEIGHT);
-                    float scrollRatio = (float) scrollOffset / maxScroll;
-                    int thumbHeight = Math.max(20, (int) ((float) LEADERBOARD_HEIGHT * VISIBLE_ENTRIES / players.size()));
-                    int thumbY = LEADERBOARD_Y + (int) (scrollRatio * (LEADERBOARD_HEIGHT - thumbHeight));
+                if (isPointInScrollbarThumb(mouseX, mouseY)) {
+                    List<Player> players = leaderboardManager.getLeaderboard();
+                    if (players.size() > VISIBLE_ENTRIES) {
+                        int maxScroll = Math.max(0, (players.size() - VISIBLE_ENTRIES) * ENTRY_HEIGHT);
+                        float scrollRatio = (float) scrollOffset / maxScroll;
+                        int thumbHeight = Math.max(20, (int) ((float) LEADERBOARD_HEIGHT * VISIBLE_ENTRIES / players.size()));
+                        int thumbY = LEADERBOARD_Y + (int) (scrollRatio * (LEADERBOARD_HEIGHT - thumbHeight));
 
-                    scrollbarDragOffset = mouseY - thumbY;
+                        scrollbarDragOffset = mouseY - thumbY;
+                    }
+                } else {
+                    scrollbarDragOffset = 10;
+                    handleScrollbarDrag(mouseY);
                 }
                 return;
             }
         }
 
+        // Handle mouse release events
         if (Event == MouseEvent.MOUSE_RELEASED) {
             isDraggingScrollbar = false;
+            scrollbarDragOffset = 0;
+            // Update hover state after release
+            updateHoverState(mouseX, mouseY);
         }
 
-        if (Event == MouseEvent.MOUSE_DRAGGED && isDraggingScrollbar) {
-            handleScrollbarDrag(mouseY);
-            return;
-        }
-
+        // Handle mouse click events
         if (Event == MouseEvent.MOUSE_CLICKED) {
             System.out.println("Mouse clicked at: " + mouseX + "," + mouseY);
 
             if (currentScreen == MENU_SCREEN) {
-                // Play button position and size
-                int playbtnX = 310, playbtnY = 335, playbtnWidth = 180, playbtnHeight = 100;
-                int exitbtnX = 341, exitbtnY = 450, exitbtnWidth = 120, exitbtnHeight = 50;
-
-                // If click is inside the play button area
-                if (mouseX >= playbtnX && mouseX <= playbtnX + playbtnWidth && mouseY >= playbtnY && mouseY <= playbtnY + playbtnHeight) {
+                // Play button
+                if (mouseX >= 310 && mouseX <= 490 && mouseY >= 335 && mouseY <= 435) {
                     currentScreen = BEGIN_SCREEN;
+                    hoveredButton = -1; // Reset hover state
                 }
-
-                // If click is inside the exit button area
-                if (mouseX >= exitbtnX && mouseX <= exitbtnX + exitbtnWidth && mouseY >= exitbtnY && mouseY <= exitbtnY + exitbtnHeight) {
-
+                // Exit button
+                else if (mouseX >= 341 && mouseX <= 461 && mouseY >= 450 && mouseY <= 500) {
                     System.exit(0);
                 }
             } else if (currentScreen == GAMEPLAY_SCREEN) {
-                // Pause button position and size
-                int pausebtnX = 20, pausebtnY = 20, pausebtnWidth = 40, pausebtnHeight = 45;
-
-                // If click is inside the pause button area
-                if (mouseX >= pausebtnX && mouseX <= pausebtnX + pausebtnWidth && mouseY >= pausebtnY && mouseY <= pausebtnY + pausebtnHeight) {
-                    isPaused = !isPaused;  // Toggle pause
+                // Pause/Resume button
+                if (mouseX >= 20 && mouseX <= 60 && mouseY >= 20 && mouseY <= 65) {
+                    isPaused = !isPaused;
                     System.out.println("Game Paused? " + isPaused);
                 }
             } else if (currentScreen == GAMEOVER_SCREEN) {
-
-                int restartBtnX = 240, restartBtnY = 370, restartBtnWidth = 110, restartBtnHeight = 60;
-                int leaderboardBtnX = 360, leaderboardBtnY = 370, leaderboardBtnWidth = 110, leaderboardBtnHeight = 60;
-                int menuBtnX = 480, menuBtnY = 370, menuBtnWidth = 110, menuBtnHeight = 60;
-
-
-                // If click is inside the restart button area
-                if (mouseX >= restartBtnX && mouseX <= restartBtnX + restartBtnWidth && mouseY >= restartBtnY && mouseY <= restartBtnY + restartBtnHeight) {
+                // Restart button
+                if (mouseX >= 240 && mouseX <= 350 && mouseY >= 370 && mouseY <= 430) {
                     resetGame();
                     currentScreen = BEGIN_SCREEN;
+                    hoveredButton = -1;
                 }
-
-                // If click is inside the leaderboard button area
-                if (mouseX >= leaderboardBtnX && mouseX <= leaderboardBtnX + leaderboardBtnWidth && mouseY >= leaderboardBtnY && mouseY <= leaderboardBtnY + leaderboardBtnHeight) {
+                // Leaderboard button
+                else if (mouseX >= 360 && mouseX <= 470 && mouseY >= 370 && mouseY <= 430) {
                     System.out.println("Leaderboard button clicked");
-                    currentScreen = LEADERBOARD_SCREEN; // Switch to leaderboard screen
-                    scrollOffset = 0; // Reset scroll position when entering leaderboard
+                    currentScreen = LEADERBOARD_SCREEN;
+                    scrollOffset = 0;
+                    hoveredButton = -1;
                 }
-
-                // If click is inside the menu button area
-                if (mouseX >= menuBtnX && mouseX <= menuBtnX + menuBtnWidth && mouseY >= menuBtnY && mouseY <= menuBtnY + menuBtnHeight) {
+                // Menu button
+                else if (mouseX >= 480 && mouseX <= 590 && mouseY >= 370 && mouseY <= 430) {
                     currentScreen = MENU_SCREEN;
+                    hoveredButton = -1;
                 }
             } else if (currentScreen == LEADERBOARD_SCREEN) {
-
-                // Back button position and size
-                int backBtnX = 330, backBtnY = 400, backBtnWidth = 140, backBtnHeight = 40;
-
-                if (mouseX >= backBtnX && mouseX <= backBtnX + backBtnWidth && mouseY >= backBtnY && mouseY <= backBtnY + backBtnHeight) {
+                // Back button
+                if (mouseX >= 330 && mouseX <= 470 && mouseY >= 400 && mouseY <= 440) {
                     currentScreen = GAMEOVER_SCREEN;
+                    hoveredButton = -1;
                 }
-
-                int addBtnX = 589, addBtnY = 30, addBtnWidth = 40, addBtnHeight = 40;
-                if (mouseX >= addBtnX && mouseX <= addBtnX + addBtnWidth && mouseY >= addBtnY && mouseY <= addBtnY + addBtnHeight) {
-                    String name = JOptionPane.showInputDialog(this, "Enter your name:");
+                // Add button
+                else if (mouseX >= 589 && mouseX <= 629 && mouseY >= 30 && mouseY <= 70) {
+                    String name = JOptionPane.showInputDialog(null, "Enter your name:");
                     if (name != null && !name.trim().isEmpty()) {
                         Player newPlayer = new Player(name.trim(), Point);
                         leaderboardManager.addPlayer(name.trim().toUpperCase(), Point);
                     }
                 }
             }
+        }
+    }
+
+    @Override
+    public void MOUSE_EXITED(MouseEvent e) {
+        if (hoveredButton != -1) {
+            hoveredButton = -1;
+            setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+            repaint();
         }
     }
 

@@ -91,6 +91,8 @@ public abstract class GameScreen extends JFrame implements KeyListener, MouseLis
 
     public abstract void MOUSE_ACTION(MouseEvent var1, int var2);
 
+    public abstract void MOUSE_EXITED(MouseEvent var1);
+
     public abstract void MOUSE_WHEEL_ACTION(int notches);
 
     @Override
