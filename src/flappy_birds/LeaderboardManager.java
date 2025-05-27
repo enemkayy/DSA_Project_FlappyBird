@@ -43,8 +43,35 @@ public class LeaderboardManager {
         sortLeaderBoard();
     }
 
+    public Player searchPlayerByName(String name) {
+        for (Player player : leaderboard) {
+            if (player.getName().equalsIgnoreCase(name)) {
+                return player;
+            }
+        }
+        return null; // not found
+    }
+
     public List<Player> getLeaderboard() {
         return leaderboard;
+    }
+
+    public int getPlayerRank(String name) {
+        for (int i = 0; i < leaderboard.size(); i++) {
+            if (leaderboard.get(i).getName().equalsIgnoreCase(name)) {
+                return i + 1; // Rank is index + 1
+            }
+        }
+        return -1; // Not found
+    }
+
+    public boolean playerExists(String name) {
+        for (Player p : leaderboard) {
+            if (p.getName().equalsIgnoreCase(name)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

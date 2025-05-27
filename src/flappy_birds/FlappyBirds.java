@@ -99,6 +99,7 @@ public class FlappyBirds extends GameScreen {
     private final int BUTTON_MENU = 6;
     private final int BUTTON_BACK = 7;
     private final int BUTTON_ADD = 8;
+    private final int BUTTON_SEARCH = 9;
 
     // Button hover colors
     private final Color HOVER_OVERLAY = new Color(246, 1, 1, 80); // Semi-transparent white
@@ -342,9 +343,15 @@ public class FlappyBirds extends GameScreen {
             }
         } else if (currentScreen == LEADERBOARD_SCREEN) {
             // Back button
-            if (mouseX >= 330 && mouseX <= 470 && mouseY >= 400 && mouseY <= 440) {
+            if (mouseX >= 230 && mouseX <= 370 && mouseY >= 400 && mouseY <= 440) {
                 return BUTTON_BACK;
             }
+
+            // Search button
+            if (mouseX >= 430 && mouseX <= 570 && mouseY >= 400 && mouseY <= 440) {
+                return BUTTON_SEARCH;
+            }
+
             // Add button
             if (mouseX >= 589 && mouseX <= 629 && mouseY >= 30 && mouseY <= 70) {
                 return BUTTON_ADD;
@@ -554,18 +561,35 @@ public class FlappyBirds extends GameScreen {
             // Draw back button with hover effect
             GradientPaint gradient1 = new GradientPaint(330, 400, new Color(255, 150, 100), 470, 440, new Color(255, 100, 60));
             g2.setPaint(gradient1);
-            g2.fillRoundRect(330, 400, 140, 40, 20, 20);
+            g2.fillRoundRect(230, 400, 140, 40, 20, 20);
 
             g2.setColor(Color.BLACK);
             g2.setStroke(new BasicStroke(3));
-            g2.drawRoundRect(330, 400, 140, 40, 20, 20);
+            g2.drawRoundRect(230, 400, 140, 40, 20, 20);
 
             g2.setColor(Color.WHITE);
             g2.setFont(new Font("Courier New", Font.BOLD, 35));
-            g2.drawString("BACK", 358, 430);
+            g2.drawString("BACK", 258, 430);
 
             // Draw hover effect for back button
-            drawButtonHover(g2, BUTTON_BACK, 330, 400, 140, 40);
+            drawButtonHover(g2, BUTTON_BACK, 230, 400, 140, 40);
+
+            // Draw the search button
+            GradientPaint searchGradient = new GradientPaint(530, 500, new Color(100, 150, 255), 570, 540, new Color(50, 100, 200));
+            g2.setPaint(searchGradient);
+            g2.fillRoundRect(430, 400, 140, 40, 15, 15);
+
+            g2.setColor(Color.WHITE);
+            g2.setFont(new Font("Courier New", Font.BOLD, 35));
+            g2.drawString("Search", 438, 430);
+
+            g2.setColor(Color.BLACK);
+            g2.setStroke(new BasicStroke(3));
+            g2.drawRoundRect(430, 400, 140, 40, 15, 15);
+
+            // Draw hover effect for add button
+            drawButtonHover(g2, BUTTON_SEARCH, 430, 400, 140, 40);
+
 
             // Draw add button with hover effect
             GradientPaint gradient2 = new GradientPaint(589, 30, new Color(60, 180, 75), 629, 70, new Color(40, 140, 55));
@@ -582,6 +606,7 @@ public class FlappyBirds extends GameScreen {
 
             // Draw hover effect for add button
             drawButtonHover(g2, BUTTON_ADD, 589, 30, 40, 40);
+
         }
 
         // Reset cursor if no button is hovered
@@ -768,17 +793,39 @@ public class FlappyBirds extends GameScreen {
                     hoveredButton = -1;
                 }
             } else if (currentScreen == LEADERBOARD_SCREEN) {
+
                 // Back button
-                if (mouseX >= 330 && mouseX <= 470 && mouseY >= 400 && mouseY <= 440) {
+                if (mouseX >= 230 && mouseX <= 370 && mouseY >= 400 && mouseY <= 440) {
                     currentScreen = GAMEOVER_SCREEN;
                     hoveredButton = -1;
                 }
+
                 // Add button
                 else if (mouseX >= 589 && mouseX <= 629 && mouseY >= 30 && mouseY <= 70) {
                     String name = JOptionPane.showInputDialog(null, "Enter your name:");
                     if (name != null && !name.trim().isEmpty()) {
-                        Player newPlayer = new Player(name.trim(), Point);
-                        leaderboardManager.addPlayer(name.trim().toUpperCase(), Point);
+                        name = name.trim().toUpperCase();
+
+                        if (leaderboardManager.playerExists(name)) {
+                            JOptionPane.showMessageDialog(null, "This player name already exists in the leaderboard. Please choose a different name.");
+                        } else {
+                            leaderboardManager.addPlayer(name, Point);
+                        }
+                    }
+                }
+
+                // Search button
+                else if (mouseX >= 430 && mouseX <= 570 && mouseY >= 400 && mouseY <= 440) {
+                    String searchName = JOptionPane.showInputDialog(null, "Enter player name to search:");
+                    if (searchName != null && !searchName.trim().isEmpty()) {
+                        Player foundPlayer = leaderboardManager.searchPlayerByName(searchName.trim());
+                        int rank = leaderboardManager.getPlayerRank(searchName.trim());
+                        if (foundPlayer != null && rank != -1) {
+                            JOptionPane.showMessageDialog(this, "Found: " + foundPlayer.getName() +
+                                    " | Score: " + foundPlayer.getScore() + " | Rank: #" + rank);
+                        } else {
+                            JOptionPane.showMessageDialog(null, "Player not found.");
+                        }
                     }
                 }
             }
