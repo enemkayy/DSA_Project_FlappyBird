@@ -27,8 +27,8 @@ public class Ground {
     }
 
     public void Update() {
-        x1 -=3;
-        x2 -=3;
+        x1 -=4;
+        x2 -=4;
 
         if (x2 < 0) x1 = x2 + 830;
         if (x1 < 0) x2 = x1 + 830;

@@ -24,7 +24,7 @@ public class ChimneyGroup {
 
     public int getRandomY() {
         Random random = new Random();
-        int a = random.nextInt(9);
+        int a = random.nextInt(7);
         return a * 30;
     }
 
@@ -51,7 +51,7 @@ public class ChimneyGroup {
             chimneys.push(cn);
 
             // Top chimney (positioned above the screen)
-            cn = new Chimney(830 + i * spacing, topChimneyY + deltaY + 10, 74, 400);
+            cn = new Chimney(830 + i * spacing, topChimneyY + deltaY + 15, 74, 400);
             chimneys.push(cn);
         }
     }
@@ -71,7 +71,7 @@ public class ChimneyGroup {
             chimneys.push(cn);
 
             // Top chimney (positioned above the screen)
-            cn = new Chimney(830 + i * spacing, topChimneyY + deltaY + 10, 74, 400);
+            cn = new Chimney(830 + i * spacing, topChimneyY + deltaY + 15, 74, 400);
             chimneys.push(cn);
         }
     }
@@ -105,7 +105,7 @@ public class ChimneyGroup {
             // Reuse top chimney
             cn = chimneys.pop();
             cn.setPosX(chimneys.get(4).getPosX());
-            cn.setPosY(topChimneyY + deltaY + 10);
+            cn.setPosY(topChimneyY + deltaY + 15);
             cn.setIsBehindBird(false);
             chimneys.push(cn);
         }

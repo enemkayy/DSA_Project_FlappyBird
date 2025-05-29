@@ -102,7 +102,7 @@ public class FlappyBirds extends GameScreen {
     private final int BUTTON_SEARCH = 9;
 
     // Button hover colors
-    private final Color HOVER_OVERLAY = new Color(246, 1, 1, 80); // Semi-transparent white
+    private final Color HOVER_OVERLAY = new Color(250, 249, 249, 126); // Semi-transparent white
     private final Color BUTTON_HOVER_GLOW = new Color(128, 128, 128); // Golden glow
 
     public FlappyBirds() throws IOException {
@@ -364,12 +364,12 @@ public class FlappyBirds extends GameScreen {
     private void drawButtonHover(Graphics2D g2, int buttonType, int x, int y, int width, int height) {
         if (hoveredButton == buttonType) {
             // Draw outer glow effect
-            g2.setColor(new Color(255, 215, 0, 60)); // Golden glow - more transparent
+            g2.setColor(new Color(89, 89, 88, 47)); // Golden glow - more transparent
             g2.setStroke(new BasicStroke(6));
             g2.drawRoundRect(x - 3, y - 3, width + 6, height + 6, 12, 12);
 
             // Draw inner glow
-            g2.setColor(new Color(255, 255, 255, 40)); // White inner glow
+            g2.setColor(new Color(141, 140, 140, 60)); // White inner glow
             g2.setStroke(new BasicStroke(2));
             g2.drawRoundRect(x - 1, y - 1, width + 2, height + 2, 8, 8);
 
@@ -616,28 +616,6 @@ public class FlappyBirds extends GameScreen {
     }
 
 
-    @Override
-    public void KEY_ACTION(KeyEvent e, int Event) {
-        if (Event == KEY_PRESSED) {
-
-            // SPACE Key
-            if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-                if (currentScreen == BEGIN_SCREEN) {
-                    currentScreen = GAMEPLAY_SCREEN;
-                } else if (currentScreen == GAMEPLAY_SCREEN) {
-                    if (bird.getLive() && !isPaused)
-                        bird.fly();
-                }
-            }
-
-            // ESC Key
-            if (e.getKeyCode() == KeyEvent.VK_ESCAPE && currentScreen == GAMEPLAY_SCREEN) {
-                isPaused = !isPaused;
-                System.out.println("Game Paused? " + isPaused);
-            }
-        }
-    }
-
     private boolean isPointInScrollbar(int mouseX, int mouseY) {
         int scrollbarX = LEADERBOARD_X + LEADERBOARD_WIDTH - SCROLLBAR_WIDTH;
         int scrollbarY = LEADERBOARD_Y;
@@ -702,6 +680,28 @@ public class FlappyBirds extends GameScreen {
         }
     }
 
+    @Override
+    public void KEY_ACTION(KeyEvent e, int Event) {
+        if (Event == KEY_PRESSED) {
+
+            // SPACE Key
+            if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+                if (currentScreen == BEGIN_SCREEN) {
+                    currentScreen = GAMEPLAY_SCREEN;
+                } else if (currentScreen == GAMEPLAY_SCREEN) {
+                    if (bird.getLive() && !isPaused)
+                        bird.fly();
+                }
+            }
+
+            // ESC Key
+            if (e.getKeyCode() == KeyEvent.VK_ESCAPE && currentScreen == GAMEPLAY_SCREEN) {
+                isPaused = !isPaused;
+                System.out.println("Game Paused? " + isPaused);
+            }
+        }
+    }
+
 
     @Override
     public void MOUSE_ACTION(MouseEvent e, int Event) {
@@ -757,6 +757,7 @@ public class FlappyBirds extends GameScreen {
         if (Event == MouseEvent.MOUSE_CLICKED) {
             System.out.println("Mouse clicked at: " + mouseX + "," + mouseY);
 
+            //Menu screen actions
             if (currentScreen == MENU_SCREEN) {
                 // Play button
                 if (mouseX >= 310 && mouseX <= 490 && mouseY >= 335 && mouseY <= 435) {
@@ -767,12 +768,16 @@ public class FlappyBirds extends GameScreen {
                 else if (mouseX >= 341 && mouseX <= 461 && mouseY >= 450 && mouseY <= 500) {
                     System.exit(0);
                 }
+
+                // Gameplay screen actions
             } else if (currentScreen == GAMEPLAY_SCREEN) {
                 // Pause/Resume button
                 if (mouseX >= 20 && mouseX <= 60 && mouseY >= 20 && mouseY <= 65) {
                     isPaused = !isPaused;
                     System.out.println("Game Paused? " + isPaused);
                 }
+
+                // Begin screen actions
             } else if (currentScreen == GAMEOVER_SCREEN) {
                 // Restart button
                 if (mouseX >= 240 && mouseX <= 350 && mouseY >= 370 && mouseY <= 430) {
@@ -792,6 +797,8 @@ public class FlappyBirds extends GameScreen {
                     currentScreen = MENU_SCREEN;
                     hoveredButton = -1;
                 }
+
+                // Leaderboard screen actions
             } else if (currentScreen == LEADERBOARD_SCREEN) {
 
                 // Back button
@@ -810,6 +817,7 @@ public class FlappyBirds extends GameScreen {
                             JOptionPane.showMessageDialog(null, "This player name already exists in the leaderboard. Please choose a different name.");
                         } else {
                             leaderboardManager.addPlayer(name, Point);
+                            JOptionPane.showMessageDialog(null, "Player added successfully!");
                         }
                     }
                 }

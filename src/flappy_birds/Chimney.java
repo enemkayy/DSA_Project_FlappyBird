@@ -15,7 +15,7 @@ public class Chimney extends Objects {
     }
 
     public void update() {
-        setPosX(getPosX() - 3);
+        setPosX(getPosX() - 4);
         rect.setLocation((int) this.getPosX(), (int) this.getPosY());
     }
 

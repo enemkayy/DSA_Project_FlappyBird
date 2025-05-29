@@ -8,6 +8,7 @@ public class QueueList<T> {
     private int size = 0;
 
     public QueueList() {
+
         head = foot = null;
     }
 
