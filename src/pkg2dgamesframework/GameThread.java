@@ -15,7 +15,7 @@ public class GameThread extends JPanel implements Runnable {
 
     private Graphics ThisGraphics;
 
-    public static int FPS_SET = 120;
+    public static int FPS_SET = 60;
     public static int UPS_SET = 60;
 
 

@@ -67,4 +67,8 @@ public class Bird extends Objects {
     public boolean getIsFlying() {
         return isFlying;
     }
+
+    public float getVt() {
+        return vt;
+    }
 }

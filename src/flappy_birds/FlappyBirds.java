@@ -8,6 +8,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.awt.font.GlyphVector;
+import java.awt.geom.AffineTransform;
+
 import java.util.List;
 
 import pkg2dgamesframework.AFrameOnImage;
@@ -418,10 +420,38 @@ public class FlappyBirds extends GameScreen {
             drawButtonHover(g2, BUTTON_PAUSE, 20, 20, 40, 45);
         }
 
-        if (bird.getIsFlying())
+//        if (bird.getIsFlying())
+//            bird_anim.PaintAnims((int) bird.getPosX(), (int) bird.getPosY(), birds, g2, 0, -1);
+//        else
+//            bird_anim.PaintAnims((int) bird.getPosX(), (int) bird.getPosY(), birds, g2, 0, 0);
+
+        // Draw bird with rotation based on flying/falling state
+        if (bird.getIsFlying()) {
+
             bird_anim.PaintAnims((int) bird.getPosX(), (int) bird.getPosY(), birds, g2, 0, -1);
-        else
+        } else {
+
+            double rotationAngle = 0;
+
+            double birdVelocity = bird.getVt();
+
+            if (birdVelocity > 0) {
+                rotationAngle = Math.min(Math.PI / 2, birdVelocity * 0.1); // Max 90 degrees
+            } else if (birdVelocity < 0) { // Flying up
+                rotationAngle = Math.max(-Math.PI / 4, birdVelocity * 0.05); // Max 45 degrees up
+            }
+
+            AffineTransform oldTransform = g2.getTransform();
+
+            int birdCenterX = (int) (bird.getPosX() + bird.getW() / 2);
+            int birdCenterY = (int) (bird.getPosY() + bird.getH() / 2);
+
+            g2.rotate(rotationAngle, birdCenterX, birdCenterY);
+
             bird_anim.PaintAnims((int) bird.getPosX(), (int) bird.getPosY(), birds, g2, 0, 0);
+
+            g2.setTransform(oldTransform);
+        }
 
         if (currentScreen == BEGIN_SCREEN) {
             // Draw score with outline
