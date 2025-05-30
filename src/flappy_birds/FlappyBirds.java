@@ -420,11 +420,6 @@ public class FlappyBirds extends GameScreen {
             drawButtonHover(g2, BUTTON_PAUSE, 20, 20, 40, 45);
         }
 
-//        if (bird.getIsFlying())
-//            bird_anim.PaintAnims((int) bird.getPosX(), (int) bird.getPosY(), birds, g2, 0, -1);
-//        else
-//            bird_anim.PaintAnims((int) bird.getPosX(), (int) bird.getPosY(), birds, g2, 0, 0);
-
         // Draw bird with rotation based on flying/falling state
         if (bird.getIsFlying()) {
 
@@ -452,6 +447,7 @@ public class FlappyBirds extends GameScreen {
 
             g2.setTransform(oldTransform);
         }
+
 
         if (currentScreen == BEGIN_SCREEN) {
             // Draw score with outline

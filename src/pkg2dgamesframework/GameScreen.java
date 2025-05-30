@@ -21,6 +21,7 @@ public abstract class GameScreen extends JFrame implements KeyListener, MouseLis
     public GameScreen() {
         this.InitThread();
         this.InitScreen();
+        this.InitInputs();
     }
 
     public void RegisterImage(int id, BufferedImage image) {
@@ -37,13 +38,11 @@ public abstract class GameScreen extends JFrame implements KeyListener, MouseLis
         MASTER_HEIGHT = this.CUSTOM_HEIGHT;
         this.InitThread();
         this.InitScreen();
+        this.InitInputs();
     }
 
     private void InitScreen() {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.addKeyListener(this);
-        this.addMouseListener(this);
-        this.addMouseWheelListener(this);
         this.setTitle("Flappy Bird remake");
         this.setSize(this.CUSTOM_WIDTH, this.CUSTOM_HEIGHT);
         this.setVisible(true);
@@ -51,16 +50,14 @@ public abstract class GameScreen extends JFrame implements KeyListener, MouseLis
         this.setLocationRelativeTo(null);
     }
 
-//    public void initInputs() {
-//        myMouseListener = new MyMouseListener(game);
-//        keyboardListener = new KeyboardListener(game);
-//
-//        addMouseListener(myMouseListener);
-//        addMouseMotionListener(myMouseListener);
-//        addKeyListener(keyboardListener);
-//
-//        requestFocus();
-//    }
+    public void InitInputs() {
+
+        this.addKeyListener(this);
+        this.addMouseListener(this);
+        this.addMouseWheelListener(this);
+
+        requestFocus();
+    }
 
     public void BeginGame() {
 
