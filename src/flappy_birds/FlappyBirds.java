@@ -219,6 +219,7 @@ public class FlappyBirds extends GameScreen {
             }
         }
 
+        // Check if the bird has hit the ground
         if (bird.getPosY() + bird.getH() > ground.getYGround()) {
             if (bird.getLive()) {
                 bird.bupSound.play();
@@ -837,7 +838,7 @@ public class FlappyBirds extends GameScreen {
                 else if (mouseX >= 589 && mouseX <= 629 && mouseY >= 30 && mouseY <= 70) {
                     String name = JOptionPane.showInputDialog(null, "Enter your name:");
                     if (name != null && !name.trim().isEmpty()) {
-                        name = name.trim().toUpperCase();
+                        name = name.trim();
 
                         if (leaderboardManager.playerExists(name)) {
                             JOptionPane.showMessageDialog(null, "This player name already exists in the leaderboard. Please choose a different name.");
