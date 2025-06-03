@@ -850,16 +850,34 @@ public class FlappyBirds extends GameScreen {
                 }
 
                 // Search button
+//                else if (mouseX >= 430 && mouseX <= 570 && mouseY >= 400 && mouseY <= 440) {
+//                    String searchName = JOptionPane.showInputDialog(null, "Enter player name to search:");
+//                    if (searchName != null && !searchName.trim().isEmpty()) {
+//                        Player foundPlayer = leaderboardManager.searchPlayerByName(searchName.trim());
+//                        int rank = leaderboardManager.getPlayerRank(searchName.trim());
+//                        if (foundPlayer != null && rank != -1) {
+//                            JOptionPane.showMessageDialog(this, "Found: " + foundPlayer.getName() +
+//                                    " | Score: " + foundPlayer.getScore() + " | Rank: #" + rank);
+//                        } else {
+//                            JOptionPane.showMessageDialog(null, "Player not found.");
+//                        }
+//                    }
+//                }
+
+                // Search button with prefix search
                 else if (mouseX >= 430 && mouseX <= 570 && mouseY >= 400 && mouseY <= 440) {
-                    String searchName = JOptionPane.showInputDialog(null, "Enter player name to search:");
-                    if (searchName != null && !searchName.trim().isEmpty()) {
-                        Player foundPlayer = leaderboardManager.searchPlayerByName(searchName.trim());
-                        int rank = leaderboardManager.getPlayerRank(searchName.trim());
-                        if (foundPlayer != null && rank != -1) {
-                            JOptionPane.showMessageDialog(this, "Found: " + foundPlayer.getName() +
-                                    " | Score: " + foundPlayer.getScore() + " | Rank: #" + rank);
+                    String searchPrefix = JOptionPane.showInputDialog(null, "Enter player name to search:");
+                    if (searchPrefix != null && !searchPrefix.trim().isEmpty()) {
+                        List<String> matches = leaderboardManager.searchPlayersByPrefix(searchPrefix.trim());
+
+                        if (!matches.isEmpty()) {
+                            StringBuilder message = new StringBuilder("Matching players with name starting with \"" + searchPrefix + "\":\n");
+                            for (String result : matches) {
+                                message.append(result).append("\n");
+                            }
+                            JOptionPane.showMessageDialog(this, message.toString());
                         } else {
-                            JOptionPane.showMessageDialog(null, "Player not found.");
+                            JOptionPane.showMessageDialog(this, "No players found with that name.");
                         }
                     }
                 }

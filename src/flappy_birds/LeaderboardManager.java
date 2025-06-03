@@ -3,6 +3,7 @@ package flappy_birds;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
 import flappy_birds.Player;
 
 public class LeaderboardManager {
@@ -43,13 +44,27 @@ public class LeaderboardManager {
         sortLeaderBoard();
     }
 
-    public Player searchPlayerByName(String name) {
-        for (Player player : leaderboard) {
-            if (player.getName().equalsIgnoreCase(name)) {
-                return player;
+//    public Player searchPlayerByName(String name) {
+//        for (Player player : leaderboard) {
+//            if (player.getName().equalsIgnoreCase(name)) {
+//                return player;
+//            }
+//        }
+//        return null; // not found
+//    }
+
+    public List<String> searchPlayersByPrefix(String prefix) {
+        List<String> results = new ArrayList<>();
+        prefix = prefix.toLowerCase(); // Case-insensitive
+
+        for (int i = 0; i < leaderboard.size(); i++) {
+            Player p = leaderboard.get(i);
+            if (p.getName().toLowerCase().startsWith(prefix)) {
+                String info = "Name: " + p.getName() + " | Score: " + p.getScore() + " | Rank: #" + (i + 1);
+                results.add(info);
             }
         }
-        return null; // not found
+        return results;
     }
 
     public List<Player> getLeaderboard() {
