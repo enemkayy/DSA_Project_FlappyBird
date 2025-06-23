@@ -32,8 +32,8 @@ public class ChimneyGroup {
 
         // Load chimney images for drawing top and bottom pipes
         try {
-            chimneyImage1 = ImageIO.read(new File("Assets/chimney.png"));
-            chimneyImage2 = ImageIO.read(new File("Assets/chimney2.png"));
+            chimneyImage1 = ImageIO.read(getClass().getResourceAsStream("/Assets/chimney.png"));
+            chimneyImage2 = ImageIO.read(getClass().getResourceAsStream("/Assets/chimney2.png"));
         } catch (IOException e) {
         }
 

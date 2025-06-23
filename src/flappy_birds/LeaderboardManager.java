@@ -55,7 +55,7 @@ public class LeaderboardManager {
 
     public List<String> searchPlayersByPrefix(String prefix) {
         List<String> results = new ArrayList<>();
-        prefix = prefix.toLowerCase(); // Case-insensitive
+        prefix = prefix.toLowerCase();
 
         for (int i = 0; i < leaderboard.size(); i++) {
             Player p = leaderboard.get(i);

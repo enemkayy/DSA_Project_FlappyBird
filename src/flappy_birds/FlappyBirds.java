@@ -111,54 +111,54 @@ public class FlappyBirds extends GameScreen {
 
         super(800, 600);
 
-        try {
-            titleImage = ImageIO.read(new File("Assets/label_flappy_bird.png"));
-            bird_icon = ImageIO.read(new File("Assets/bird_orange_1.png"));
-            leaderboardTitle = ImageIO.read(
-                    new File("Assets/leaderboard_title.png"));
-            backgroundDay = ImageIO.read(
-                    new File("Assets/background-day.png"));
-            exitButton = ImageIO.read(
-                    new File("Assets/exit_btn.png"));
-            playButton = ImageIO.read(
-                    new File("Assets/button_play_normal.png"));
-            pauseButton = ImageIO.read(
-                    new File("Assets/button_pause.png"));
-            resumeButton = ImageIO.read(
-                    new File("Assets/button_resume.png"));
-            promptToPlay = ImageIO.read(
-                    new File("Assets/prompt.png"));
-            getReady = ImageIO.read(
-                    new File("Assets/label_get_ready.png"));
-            instructions = ImageIO.read(
-                    new File("Assets/instructions.png"));
-            gameOver = ImageIO.read(
-                    new File("Assets/gameover.png"));
-            panelScore = ImageIO.read(
-                    new File("Assets/panel_score.png"));
-            restartButton = ImageIO.read(
-                    new File("Assets/button_restart.png"));
-            leaderboardButton = ImageIO.read(
-                    new File("Assets/button_score_normal.png"));
-            menuButton = ImageIO.read(
-                    new File("Assets/button_menu.png"));
-            bronzeMedal = ImageIO.read(
-                    new File("Assets/medal_bronze.png"));
-            silverMedal = ImageIO.read(
-                    new File("Assets/medal_silver.png"));
-            goldMedal = ImageIO.read(
-                    new File("Assets/medal_gold.png"));
-            platinumMedal = ImageIO.read(
-                    new File("Assets/medal_platinum.png"));
-            label_new = ImageIO.read(
-                    new File("Assets/label_new.png"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            try {
+                titleImage = ImageIO.read(getClass().getResourceAsStream("/Assets/label_flappy_bird.png"));
+                bird_icon = ImageIO.read(getClass().getResourceAsStream("/Assets/bird_orange_1.png"));
+                leaderboardTitle = ImageIO.read(
+                        getClass().getResourceAsStream("/Assets/leaderboard_title.png"));
+                backgroundDay = ImageIO.read(
+                        getClass().getResourceAsStream("/Assets/background-day.png"));
+                exitButton = ImageIO.read(
+                        getClass().getResourceAsStream("/Assets/exit_btn.png"));
+                playButton = ImageIO.read(
+                        getClass().getResourceAsStream("/Assets/button_play_normal.png"));
+                pauseButton = ImageIO.read(
+                        getClass().getResourceAsStream("/Assets/button_pause.png"));
+                resumeButton = ImageIO.read(
+                        getClass().getResourceAsStream("/Assets/button_resume.png"));
+                promptToPlay = ImageIO.read(
+                        getClass().getResourceAsStream("/Assets/prompt.png"));
+                getReady = ImageIO.read(
+                        getClass().getResourceAsStream("/Assets/label_get_ready.png"));
+                instructions = ImageIO.read(
+                        getClass().getResourceAsStream("/Assets/instructions.png"));
+                gameOver = ImageIO.read(
+                        getClass().getResourceAsStream("/Assets/gameover.png"));
+                panelScore = ImageIO.read(
+                        getClass().getResourceAsStream("/Assets/panel_score.png"));
+                restartButton = ImageIO.read(
+                        getClass().getResourceAsStream("/Assets/button_restart.png"));
+                leaderboardButton = ImageIO.read(
+                        getClass().getResourceAsStream("/Assets/button_score_normal.png"));
+                menuButton = ImageIO.read(
+                        getClass().getResourceAsStream("/Assets/button_menu.png"));
+                bronzeMedal = ImageIO.read(
+                        getClass().getResourceAsStream("/Assets/medal_bronze.png"));
+                silverMedal = ImageIO.read(
+                        getClass().getResourceAsStream("/Assets/medal_silver.png"));
+                goldMedal = ImageIO.read(
+                        getClass().getResourceAsStream("/Assets/medal_gold.png"));
+                platinumMedal = ImageIO.read(
+                        getClass().getResourceAsStream("/Assets/medal_platinum.png"));
+                label_new = ImageIO.read(
+                        getClass().getResourceAsStream("/Assets/label_new.png"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
 
         try {
-            birds = ImageIO.read(new File("Assets/bird_sprite.png"));
+            birds = ImageIO.read(getClass().getResourceAsStream("/Assets/bird_sprite.png"));
 
 
         } catch (IOException e) {

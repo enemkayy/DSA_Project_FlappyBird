@@ -22,9 +22,9 @@ public class Bird extends Objects {
         super(x, y, w, h);
         rect = new Rectangle(x, y, w, h);
 
-        flapSound = new SoundPlayer(new File("Assets/flap.wav"));
-        bupSound = new SoundPlayer(new File("Assets/bup.wav"));
-        getMoneySound = new SoundPlayer(new File("Assets/getMoney.wav"));
+        flapSound = new SoundPlayer(getClass().getResourceAsStream("/Assets/flap.wav"));
+        bupSound = new SoundPlayer(getClass().getResourceAsStream("/Assets/bup.wav"));
+        getMoneySound = new SoundPlayer(getClass().getResourceAsStream("/Assets/getMoney.wav"));
 
     }
 
